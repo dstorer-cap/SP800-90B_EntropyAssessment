@@ -16,7 +16,7 @@
 #include <algorithm>	// std::sort
 #include <cmath>		// pow, log2
 #include <array>		// std::array
-#include <omp.h>		// openmp 4.0 with gcc 4.9
+// #include <omp.h>		// openmp 4.0 with gcc 4.9
 #include <bitset>
 #include <mutex>		// std::mutex
 #include <assert.h>
