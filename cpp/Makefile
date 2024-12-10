@@ -25,29 +25,41 @@ MKT_CONFIG := debug
 MKT_SDK_PATH := ${DEP_MKT_PATH}/out/microkit-sdk-1.4.1
 MKT_PATH_FILE := ${MKT_SDK_PATH}/bin/microkit
 MKT_RTM_PATH_FILE := ${MKT_SDK_PATH}/board/${MKT_BOARD}/${MKT_CONFIG}
-PICOLIBC_PATH = ${DEP_PLC_PATH}/picolibc_build/picolibc/aarch64-linux-gnu
+PICOLIBC_PATH := ${DEP_PLC_PATH}/picolibc_build/picolibc/aarch64-linux-gnu
 
-OPENSSL_PATH = /home/dstorer/svn_apricot/apricot/development/wip/daniel/single-linux-guest-nitrokey/dep/SP800-90B_EntropyAssessment/openssl-1.1.1e
-DIVSURFSORT_PATH = /home/dstorer/svn_apricot/apricot/development/wip/daniel/single-linux-guest-nitrokey/dep/SP800-90B_EntropyAssessment/libdivsufsort/build
-LIBJSONCPP_PATH = /home/dstorer/svn_apricot/apricot/development/wip/daniel/single-linux-guest-nitrokey/dep/SP800-90B_EntropyAssessment/jsoncpp/build
+OPENSSL_PATH := /home/dstorer/svn_apricot/apricot/development/wip/daniel/single-linux-guest-nitrokey/dep/SP800-90B_EntropyAssessment/openssl-1.1.1e
+DIVSURFSORT_PATH := /home/dstorer/svn_apricot/apricot/development/wip/daniel/single-linux-guest-nitrokey/dep/SP800-90B_EntropyAssessment/libdivsufsort/build
+LIBJSONCPP_PATH := /home/dstorer/svn_apricot/apricot/development/wip/daniel/single-linux-guest-nitrokey/dep/SP800-90B_EntropyAssessment/jsoncpp/build
 
-ARCH = aarch64
+ARCH := aarch64
 
-override CXX = aarch64-linux-gnu-g++
+override CXX := ${TCH}-g++
 
-CXXFLAGS = -std=c++11 -fopenmp -O2 -ffloat-store
+CXXFLAGS := -std=c++11 -fopenmp -O2 -ffloat-store
 ifeq ($(ARCH),x86)
 CXXFLAGS += -msse2 -march=native
 endif
 
-LIB = -lpthread -L${DIVSURFSORT_PATH}/lib -ldivsufsort -ldivsufsort64
-COND_LIB = -lmpfr -lgmp
-SHARED_LIB = -L${LIBJSONCPP_PATH}/lib -ljsoncpp -L${OPENSSL_PATH} -lcrypto -ldl
-INC = -I${DIVSURFSORT_PATH}/include -I${OPENSSL_PATH}/include  -I${LIBJSONCPP_PATH}/../include
+LIB := \
+    -lpthread \
+    -L${DIVSURFSORT_PATH}/lib -ldivsufsort -ldivsufsort64 \
+    -L${MKT_RTM_PATH_FILE}/lib \
+    -lmicrokit \
+    -Tmicrokit.ld 
 
-non_iid: non_iid_main.o	
-non_iid_main.o: non_iid_main.cpp
-	$(CXX) $(CXXFLAGS) $(INC) non_iid_main.cpp -o ea_non_iid $(LIB) $(SHARED_LIB)
+COND_LIB := -lmpfr -lgmp
+SHARED_LIB := -L${LIBJSONCPP_PATH}/lib -ljsoncpp -L${OPENSSL_PATH} -lcrypto -ldl
+INC := -I${DIVSURFSORT_PATH}/include -I${OPENSSL_PATH}/include -I${LIBJSONCPP_PATH}/../include
+
+#===========================================================
+# Targets
+#===========================================================
+non_iid.elf: non_iid_main.o
+	$(CXX) $(CXXFLAGS) non_iid_main.o $(LIB) $(SHARED_LIB) -o $@
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) $(INC) -c $< -o $@
 
 clean:
+	rm -f *.o non_iid.elf
 	rm -f ea_iid ea_non_iid ea_restart ea_conditioning ea_transpose selftest/*.res
