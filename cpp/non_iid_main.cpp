@@ -17,7 +17,7 @@
 #include <limits.h>
 #include <iostream>
 #include <fstream>
-#include <openssl/sha.h>
+// #include <openssl/sha.h>
 
 [[ noreturn ]] void print_usage() {
     printf("Usage is: ea_non_iid [-i|-c] [-a|-t] [-v] [-q] [-l <index>,<samples> ] <file_name> [bits_per_symbol]\n\n");

@@ -48,8 +48,8 @@ LIB := \
     -Tmicrokit.ld 
 
 COND_LIB := -lmpfr -lgmp
-SHARED_LIB :=  -L${OPENSSL_PATH} -lcrypto -ldl
-INC := -I${DIVSURFSORT_PATH}/include -I${OPENSSL_PATH}/include 
+SHARED_LIB := 
+INC := -I${DIVSURFSORT_PATH}/include 
 
 #===========================================================
 # Targets
