@@ -3,7 +3,7 @@
 
 #include "utils.h"
 #include <string>
-#include <json/json.h>
+// #include <json/json.h>
 
 using namespace std;
 
@@ -18,24 +18,24 @@ public:
     string commandline;
 
 protected:
-    Json::Value GetBaseJson() {
-        Json::Value baseJson;
-        baseJson["dateTimeStamp"] = timestamp;
-        baseJson["commandline"] = commandline;
-        baseJson["errorLevel"] = errorLevel;
-        baseJson["type"] = type;
-        baseJson["toolVersion"] = VERSION;
+    // Json::Value GetBaseJson() {
+    //     Json::Value baseJson;
+    //     baseJson["dateTimeStamp"] = timestamp;
+    //     baseJson["commandline"] = commandline;
+    //     baseJson["errorLevel"] = errorLevel;
+    //     baseJson["type"] = type;
+    //     baseJson["toolVersion"] = VERSION;
 
-        if (errorLevel != 0){
-            baseJson["errorMessage"] = errorMsg;
-        }
-        if(!filename.empty()) {
-            baseJson["filename"] = filename;
-        }
-        if(!sha256.empty()) {
-            baseJson["sha256"] = sha256;
-        }
-        return baseJson;
-    }
+    //     if (errorLevel != 0){
+    //         baseJson["errorMessage"] = errorMsg;
+    //     }
+    //     if(!filename.empty()) {
+    //         baseJson["filename"] = filename;
+    //     }
+    //     if(!sha256.empty()) {
+    //         baseJson["sha256"] = sha256;
+    //     }
+    //     return baseJson;
+    // }
 };
 #endif /* TESTRUN_H */

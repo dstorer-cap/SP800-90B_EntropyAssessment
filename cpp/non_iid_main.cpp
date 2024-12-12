@@ -74,14 +74,14 @@ int main(int argc, char* argv[]) {
     unsigned long long inint;
     char *nextOption;
 
-    bool jsonOutput = false;
-    string timestamp = getCurrentTimestamp();
-    string outputfilename;
-    string commandline = recreateCommandLine(argc, argv);
+    // bool jsonOutput = false;
+    // string timestamp = getCurrentTimestamp();
+    // string outputfilename;
+    // string commandline = recreateCommandLine(argc, argv);
 
     NonIidTestRun testRun;
-    testRun.timestamp = timestamp;
-    testRun.commandline = commandline;
+    // testRun.timestamp = timestamp;
+    // testRun.commandline = commandline;
 
     data.word_size = 0;
 
@@ -96,67 +96,67 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    while ((opt = getopt(argc, argv, "icatvql:o:")) != -1) {
-        switch (opt) {
-            case 'i':
-                initial_entropy = true;
-                break;
-            case 'c':
-                initial_entropy = false;
-                break;
-            case 'a':
-                all_bits = true;
-                break;
-            case 't':
-                all_bits = false;
-                break;
-            case 'v':
-                verbose++;
-                break;
-            case 'q':
-                quietMode = true;
-                break;
-            case 'l':
-                inint = strtoull(optarg, &nextOption, 0);
-                if ((inint > ULONG_MAX) || (errno == EINVAL) || (nextOption == NULL) || (*nextOption != ',')) {
-                    testRun.errorLevel = -1;
-                    testRun.errorMsg = "Error on index/samples.";
+    // while ((opt = getopt(argc, argv, "icatvql:o:")) != -1) {
+    //     switch (opt) {
+    //         case 'i':
+    //             initial_entropy = true;
+    //             break;
+    //         case 'c':
+    //             initial_entropy = false;
+    //             break;
+    //         case 'a':
+    //             all_bits = true;
+    //             break;
+    //         case 't':
+    //             all_bits = false;
+    //             break;
+    //         case 'v':
+    //             verbose++;
+    //             break;
+    //         case 'q':
+    //             quietMode = true;
+    //             break;
+    //         case 'l':
+    //             inint = strtoull(optarg, &nextOption, 0);
+    //             if ((inint > ULONG_MAX) || (errno == EINVAL) || (nextOption == NULL) || (*nextOption != ',')) {
+    //                 testRun.errorLevel = -1;
+    //                 testRun.errorMsg = "Error on index/samples.";
 
-                    if (jsonOutput) {
-                        ofstream output;
-                        output.open(outputfilename);
-                        output << testRun.GetAsJson();
-                        output.close();
-                    }
-                    print_usage();
-                }
-                subsetIndex = inint;
+    //                 if (jsonOutput) {
+    //                     ofstream output;
+    //                     output.open(outputfilename);
+    //                     output << testRun.GetAsJson();
+    //                     output.close();
+    //                 }
+    //                 print_usage();
+    //             }
+    //             subsetIndex = inint;
 
-                nextOption++;
+    //             nextOption++;
 
-                inint = strtoull(nextOption, NULL, 0);
-                if ((inint > ULONG_MAX) || (errno == EINVAL)) {
-                    testRun.errorLevel = -1;
-                    testRun.errorMsg = "Error on index/samples.";
+    //             inint = strtoull(nextOption, NULL, 0);
+    //             if ((inint > ULONG_MAX) || (errno == EINVAL)) {
+    //                 testRun.errorLevel = -1;
+    //                 testRun.errorMsg = "Error on index/samples.";
 
-                    if (jsonOutput) {
-                        ofstream output;
-                        output.open(outputfilename);
-                        output << testRun.GetAsJson();
-                        output.close();
-                    }
-                    print_usage();
-                }
-                subsetSize = inint;
-                break;
-            case 'o':
-                jsonOutput = true;
-                outputfilename = optarg;
-                break;
-            default:
-                print_usage();
-        }
-    }
+    //                 if (jsonOutput) {
+    //                     ofstream output;
+    //                     output.open(outputfilename);
+    //                     output << testRun.GetAsJson();
+    //                     output.close();
+    //                 }
+    //                 print_usage();
+    //             }
+    //             subsetSize = inint;
+    //             break;
+    //         case 'o':
+    //             jsonOutput = true;
+    //             outputfilename = optarg;
+    //             break;
+    //         default:
+    //             print_usage();
+    //     }
+    // }
 
     argc -= optind;
     argv += optind;
@@ -173,79 +173,79 @@ int main(int argc, char* argv[]) {
     }
 
     // get filename
-    file_path = argv[0];
+    // file_path = argv[0];
 
-    char hash[2*SHA256_DIGEST_LENGTH+1];
-    sha256_file(file_path, hash);
+    // char hash[2*SHA256_DIGEST_LENGTH+1];
+    // sha256_file(file_path, hash);
 
-    testRun.sha256 = hash;
-    testRun.filename = file_path;
+    // testRun.sha256 = hash;
+    // testRun.filename = file_path;
 
-    if (argc == 2) {
-        // get bits per word
-        inint = atoi(argv[1]);
-        if (inint < 1 || inint > 8) {
+    // if (argc == 2) {
+    //     // get bits per word
+    //     inint = atoi(argv[1]);
+    //     if (inint < 1 || inint > 8) {
 
-            testRun.errorLevel = -1;
-            testRun.errorMsg = "Invalid bits per symbol.";
+    //         testRun.errorLevel = -1;
+    //         testRun.errorMsg = "Invalid bits per symbol.";
 
-            if (jsonOutput) {
-                ofstream output;
-                output.open(outputfilename);
-                output << testRun.GetAsJson();
-                output.close();
-            }
+    //         if (jsonOutput) {
+    //             ofstream output;
+    //             output.open(outputfilename);
+    //             output << testRun.GetAsJson();
+    //             output.close();
+    //         }
 
-            printf("Invalid bits per symbol.\n");
-            print_usage();
-        } else {
-            data.word_size = inint;
-        }
-    }
+    //         printf("Invalid bits per symbol.\n");
+    //         print_usage();
+    //     } else {
+    //         data.word_size = inint;
+    //     }
+    // }
 
-    if (verbose > 1) {
-        if (subsetSize == 0) printf("Opening file: '%s' (SHA-256 hash %s)\n", file_path, hash);
-        else printf("Opening file: '%s' (SHA-256 hash %s), reading block %ld of size %ld\n", file_path, hash, subsetIndex, subsetSize);
-    }
+    // if (verbose > 1) {
+    //     if (subsetSize == 0) printf("Opening file: '%s' (SHA-256 hash %s)\n", file_path, hash);
+    //     else printf("Opening file: '%s' (SHA-256 hash %s), reading block %ld of size %ld\n", file_path, hash, subsetIndex, subsetSize);
+    // }
 
-    if (!read_file_subset(file_path, &data, subsetIndex, subsetSize, &testRun)) {
-        if (jsonOutput) {
-            ofstream output;
-            output.open(outputfilename);
-            output << testRun.GetAsJson();
-            output.close();
-        }
-        printf("Error reading file.\n");
-        print_usage();
-    }
+    // if (!read_file_subset(file_path, &data, subsetIndex, subsetSize, &testRun)) {
+    //     if (jsonOutput) {
+    //         ofstream output;
+    //         output.open(outputfilename);
+    //         output << testRun.GetAsJson();
+    //         output.close();
+    //     }
+    //     printf("Error reading file.\n");
+    //     print_usage();
+    // }
 
-    if (verbose > 1) printf("Loaded %ld samples of %d distinct %d-bit-wide symbols\n", data.len, data.alph_size, data.word_size);
+    // if (verbose > 1) printf("Loaded %ld samples of %d distinct %d-bit-wide symbols\n", data.len, data.alph_size, data.word_size);
 
-    if (data.alph_size <= 1) {
+    // if (data.alph_size <= 1) {
 
-        printf("Symbol alphabet consists of 1 symbol. No entropy awarded...\n");
+    //     printf("Symbol alphabet consists of 1 symbol. No entropy awarded...\n");
 
-        testRun.errorLevel = -1;
-        testRun.errorMsg = "Symbol alphabet consists of 1 symbol. No entropy awarded...";
+    //     testRun.errorLevel = -1;
+    //     testRun.errorMsg = "Symbol alphabet consists of 1 symbol. No entropy awarded...";
 
-        if (jsonOutput) {
-            ofstream output;
-            output.open(outputfilename);
-            output << testRun.GetAsJson();
-            output.close();
-        }
+    //     if (jsonOutput) {
+    //         ofstream output;
+    //         output.open(outputfilename);
+    //         output << testRun.GetAsJson();
+    //         output.close();
+    //     }
 
-        free_data(&data);
-        exit(-1);
-    }
+    //     free_data(&data);
+    //     exit(-1);
+    // }
 
-    if (!all_bits && (data.blen > MIN_SIZE)) data.blen = MIN_SIZE;
+    // if (!all_bits && (data.blen > MIN_SIZE)) data.blen = MIN_SIZE;
 
-    if ((verbose > 1) && ((data.alph_size > 2) || !initial_entropy)) printf("Number of Binary Symbols: %ld\n", data.blen);
-    if (data.len < MIN_SIZE) printf("\n*** Warning: data contains less than %d samples ***\n\n", MIN_SIZE);
-    if (verbose > 1) {
-        if (data.alph_size < (1 << data.word_size)) printf("\nSymbols have been translated.\n");
-    }
+    // if ((verbose > 1) && ((data.alph_size > 2) || !initial_entropy)) printf("Number of Binary Symbols: %ld\n", data.blen);
+    // if (data.len < MIN_SIZE) printf("\n*** Warning: data contains less than %d samples ***\n\n", MIN_SIZE);
+    // if (verbose > 1) {
+    //     if (data.alph_size < (1 << data.word_size)) printf("\nSymbols have been translated.\n");
+    // }
 
     // The maximum min-entropy is -log2(1/2^word_size) = word_size
     // The maximum bit string min-entropy is 1.0
@@ -535,12 +535,12 @@ int main(int argc, char* argv[]) {
     testRun.testCases.push_back(tcOverall);
     testRun.errorLevel = 0;
 
-    if (jsonOutput) {
-        ofstream output;
-        output.open(outputfilename);
-        output << testRun.GetAsJson();
-        output.close();
-    }
+    // if (jsonOutput) {
+    //     ofstream output;
+    //     output.open(outputfilename);
+    //     output << testRun.GetAsJson();
+    //     output.close();
+    // }
 
     free_data(&data);
     return 0;

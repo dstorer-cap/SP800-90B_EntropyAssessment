@@ -48,8 +48,8 @@ LIB := \
     -Tmicrokit.ld 
 
 COND_LIB := -lmpfr -lgmp
-SHARED_LIB := -L${LIBJSONCPP_PATH}/lib -ljsoncpp -L${OPENSSL_PATH} -lcrypto -ldl
-INC := -I${DIVSURFSORT_PATH}/include -I${OPENSSL_PATH}/include -I${LIBJSONCPP_PATH}/../include
+SHARED_LIB :=  -L${OPENSSL_PATH} -lcrypto -ldl
+INC := -I${DIVSURFSORT_PATH}/include -I${OPENSSL_PATH}/include 
 
 #===========================================================
 # Targets
