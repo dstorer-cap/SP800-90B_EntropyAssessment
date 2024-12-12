@@ -35,13 +35,12 @@ ARCH := aarch64
 
 override CXX := ${TCH}-g++
 
-CXXFLAGS := -std=c++11 -fopenmp -O2 -ffloat-store
+CXXFLAGS := -std=c++11 -O2 -ffloat-store
 ifeq ($(ARCH),x86)
 CXXFLAGS += -msse2 -march=native
 endif
 
 LIB := \
-    -lpthread \
     -L${DIVSURFSORT_PATH}/lib -ldivsufsort -ldivsufsort64 \
     -L${MKT_RTM_PATH_FILE}/lib \
     -lmicrokit \
