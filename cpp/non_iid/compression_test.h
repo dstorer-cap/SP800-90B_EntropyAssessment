@@ -38,7 +38,7 @@ double G(double z, int d, long num_blocks){
 	//Calculate A_{d+1}
 	for(int i=2; i<=d; i++) {
 		//calculate the a_i term
-		kahan_add(Ai, Ai_comp, log2l((long double)i)*Bi);
+		kahan_add(Ai, Ai_comp, log2f((long double)i)*Bi);
 
 		//Calculate B_{i+1}
 		Bi *= Bterm;
@@ -51,7 +51,7 @@ double G(double z, int d, long num_blocks){
 	//Now calculate A_{num_blocks} and the sum of sums term (firstsum)
 	for(long i=d+1; i<=num_blocks-1; i++) {
 		//calculate the a_i term
-		ai = log2l((long double)i)*Bi;
+		ai = log2f((long double)i)*Bi;
 
 		//Calculate A_{i+1}
 		kahan_add(Ai, Ai_comp, (double)ai);
@@ -76,7 +76,7 @@ double G(double z, int d, long num_blocks){
 
 	//Calculate A_{num_blocks+1}
 	if(!underflowTruncate) {
-		ai = log2l((long double)num_blocks)*Bi;
+		ai = log2f((long double)num_blocks)*Bi;
 		kahan_add(Ai, Ai_comp, (double)ai);
 	}
 

@@ -2,6 +2,8 @@
 #define VERSION "1.1.7"
 
 #pragma once
+#include <stdlib.h>
+#include <math.h>
 #include <iostream>		// std::cout
 #include <string>		// std::string
 #include <map>			// std::map
@@ -9,7 +11,6 @@
 #include <string.h>		// strlen
 #include <iomanip>		// setw / setfill
 #include <stdio.h>
-//#include <stdlib.h>
 #include <cstdlib>
 #include <vector>		// std::vector
 #include <time.h>		// time
@@ -21,7 +22,7 @@
 #include <mutex>		// std::mutex
 #include <assert.h>
 #include <cfloat>
-#include <math.h>
+
 #include "test_run_base.h"
 
 #define SWAP(x, y) do { int s = x; x = y; y = s; } while(0)
@@ -652,17 +653,17 @@ double randomUnit(uint64_t *xoshiro256starstarState) {
 }
 
 // Fisher-Yates Fast (in place) shuffle algorithm
-void FYshuffle(uint8_t data[], uint8_t rawdata[], const int sample_size, uint64_t *xoshiro256starstarState) {
-	long int r;
-	static mutex shuffle_mutex;
-	unique_lock<mutex> lock(shuffle_mutex);
+// void FYshuffle(uint8_t data[], uint8_t rawdata[], const int sample_size, uint64_t *xoshiro256starstarState) {
+// 	long int r;
+// 	static mutex shuffle_mutex;
+// 	unique_lock<mutex> lock(shuffle_mutex);
 
-	for (long int i = sample_size - 1; i > 0; --i) {
-		r = (long int)randomRange64((uint64_t)i, xoshiro256starstarState);
-		SWAP(data[r], data[i]);
-		SWAP(rawdata[r], rawdata[i]);
-	}
-}
+// 	for (long int i = sample_size - 1; i > 0; --i) {
+// 		r = (long int)randomRange64((uint64_t)i, xoshiro256starstarState);
+// 		SWAP(data[r], data[i]);
+// 		SWAP(rawdata[r], rawdata[i]);
+// 	}
+// }
 
 // Quick sum array  // TODO
 long int sum(const uint8_t arr[], const int sample_size) {
@@ -846,14 +847,14 @@ double prediction_estimate_function(long double p, long r, long N){
 	//As such we don't need much fancyness for looking for "equality"
 	for(int i = 0; (i <= 65) && ((x - xlast) > (LDBL_EPSILON*x)); i++) {
 		xlast = x;
-		x = 1.0L + q*powl(p, r)*powl(x, r+1.0L);
+		x = 1.0L + q*powf(p, r)*powf(x, r+1.0L);
 		//We expect this convergence to be monotonic up.
 		assert(x >= xlast);
 		//We expect x<=1/p
 		assert(p*x <= 1.0L);
 	}
 
-	return((double)(logl(1.0L-p*x) - logl((r+1.0L-r*x)*q) - (N+1.0L)*logl(x)));
+	return((double)(logf(1.0L-p*x) - logf((r+1.0L-r*x)*q) - (N+1.0L)*logf(x)));
 }
 
 double calc_p_local(long max_run_len, long N, double ldomain){

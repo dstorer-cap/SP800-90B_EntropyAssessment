@@ -17,7 +17,28 @@
 #include <limits.h>
 #include <iostream>
 #include <fstream>
+
+int __errno; // Declare a global variable for errno.
+
+int* __errno_location(void) {
+    return &__errno;
+}
+
+extern "C" {
+    int read(int file, char *ptr, int len) { errno = ENOSYS; return -1; }
+    int write(int file, char *ptr, int len) { errno = ENOSYS; return -1; }
+    int lseek(int file, int offset, int whence) { errno = ENOSYS; return -1; }
+    int fstat(int file, struct stat *st) { errno = ENOSYS; return -1; }
+    int close(int file) { errno = ENOSYS; return -1; }
+    int isatty(int file) { return 0; }
+}
+
+// #include <stdio_microkit.h>
+// extern "C" {
+//     #include <stdio_microkit.h>
+// }
 // #include <openssl/sha.h>
+// #include <microkit.h>
 
 [[ noreturn ]] void print_usage() {
     printf("Usage is: ea_non_iid [-i|-c] [-a|-t] [-v] [-q] [-l <index>,<samples> ] <file_name> [bits_per_symbol]\n\n");
@@ -58,7 +79,15 @@
     exit(-1);
 }
 
-int main(int argc, char* argv[]) {
+// void init(){
+
+// }
+
+// void notified(microkit_channel ch){
+
+// }
+
+int main_2(int argc, char* argv[]) {
 
     bool initial_entropy, all_bits;
     int verbose = 1; //verbose 0 is for JSON output, 1 is the normal mode, 2 is the NIST tool verbose mode, and 3 is for extra verbose output
@@ -208,16 +237,16 @@ int main(int argc, char* argv[]) {
     //     else printf("Opening file: '%s' (SHA-256 hash %s), reading block %ld of size %ld\n", file_path, hash, subsetIndex, subsetSize);
     // }
 
-    // if (!read_file_subset(file_path, &data, subsetIndex, subsetSize, &testRun)) {
-    //     if (jsonOutput) {
-    //         ofstream output;
-    //         output.open(outputfilename);
-    //         output << testRun.GetAsJson();
-    //         output.close();
-    //     }
-    //     printf("Error reading file.\n");
-    //     print_usage();
-    // }
+    if (!read_file_subset(file_path, &data, subsetIndex, subsetSize, &testRun)) {
+        if (jsonOutput) {
+            ofstream output;
+            output.open(outputfilename);
+            output << testRun.GetAsJson();
+            output.close();
+        }
+        printf("Error reading file.\n");
+        print_usage();
+    }
 
     // if (verbose > 1) printf("Loaded %ld samples of %d distinct %d-bit-wide symbols\n", data.len, data.alph_size, data.word_size);
 

@@ -228,7 +228,7 @@ void SAalgs32(const uint8_t text[], long int n, int k, double &t_tuple_res, doub
 	Pmax = -1.0;
 	for(long int i=1; i<u; i++) {
 		long double curP = ((long double)(Q[i]))/((long double)(n-i+1));
-		long double curPMax = powl(curP, 1.0L/(long double)i);
+		long double curPMax = powf(curP, 1.0L/(long double)i);
 
 		if(curPMax > Pmax) {
 			Pmax=curPMax;
@@ -243,7 +243,7 @@ void SAalgs32(const uint8_t text[], long int n, int k, double &t_tuple_res, doub
 			pu = 1.0L;
 		}
 
-		t_tuple_res = (double)-log2l(pu);
+		t_tuple_res = (double)-log2f(pu);
 
 		if(verbose == 2) printf("%s t-Tuple Estimate: t = %ld, p-hat_max = %.22Lg, p_u = %.22Lg\n", label, u-1, Pmax, pu);
 		else if(verbose == 3) {
@@ -315,7 +315,7 @@ void SAalgs32(const uint8_t text[], long int n, int k, double &t_tuple_res, doub
 			pu = 1.0L;
 		}
 
-		lrs_res = (double)-log2l(pu);
+		lrs_res = (double)-log2f(pu);
 
 		if(verbose == 2) printf("%s LRS Estimate: u = %ld, v = %ld, p-hat = %.17Lg, p_u = %.17Lg\n", label, u, v, Pmax, pu);
 		else if(verbose == 3) {
@@ -450,7 +450,7 @@ void SAalgs64(const uint8_t text[], long int n, int k, double &t_tuple_res, doub
 	Pmax = -1.0;
 	for(long int i=1; i<u; i++) {
 		long double curP = ((long double)(Q[i]))/((long double)(n-i+1));
-		long double curPMax = powl(curP, 1.0L/(long double)i);
+		long double curPMax = powf(curP, 1.0L/(long double)i);
 
 		if(curPMax > Pmax) {
 			Pmax=curPMax;
@@ -465,7 +465,7 @@ void SAalgs64(const uint8_t text[], long int n, int k, double &t_tuple_res, doub
 			pu = 1.0;
 		}
 
-		t_tuple_res = (double)-log2l(pu);
+		t_tuple_res = (double)-log2f(pu);
 
 		if(verbose == 2) printf("%s t-Tuple Estimate: t = %ld, p-hat_max = %.22Lg, p_u = %.22Lg\n", label, u-1, Pmax, pu);
 		else if(verbose == 3) {
@@ -525,7 +525,7 @@ void SAalgs64(const uint8_t text[], long int n, int k, double &t_tuple_res, doub
 			// Note, the assert marked "(mult assert)" tells us that the multiplication won't rollover.
 			uint128_t choices = (((uint128_t)n-(uint128_t)i)*((uint128_t)n-(uint128_t)i+1U))>>1;
 			long double curP = ((long double)S[i]) / (long double)choices;
-			long double curPMax = powl(curP, 1.0L/((long double)i));
+			long double curPMax = powf(curP, 1.0L/((long double)i));
 
 
 			if(Pmax < curPMax) {
@@ -604,7 +604,7 @@ void calc_collision_proportion(const vector<double> &p, long double &p_col){
 	p_col = 0.0L;
 	
 	for(unsigned int i = 0; i < p.size(); i++){
-		p_col += powl((long double)(p[i]), 2.0L);
+		p_col += powf((long double)(p[i]), 2.0L);
 	}
 }
 
@@ -653,7 +653,7 @@ bool len_LRS_test(const uint8_t data[], const int L, const int k, const int verb
 	// (2^-16382 on modern Intel platforms); if this happens then we can't represent p_col^W directly as a long double.
 	// There isn't anything we can do about this error condition without moving to an arbitrary precision calculation, so
 	// for now, we'll just detect this condition and abort the calculation.
-	long double p_colPower = powl(p_col, (long double)W);
+	long double p_colPower = powf(p_col, (long double)W);
 	assert(p_colPower >= LDBL_MIN);
 	assert(p_colPower <= 1.0L-LDBL_EPSILON);
 
@@ -665,7 +665,7 @@ bool len_LRS_test(const uint8_t data[], const int L, const int k, const int verb
 	// We instead calculate the log of the probability of not having a collision of length W for a single pair of independent W-length strings.
 	// Recall that log1p(x) = log(1+x); this form is useful when |x| is small. We are particularly concerned with the case where p_col^W is a small 
 	// positive value, which would make log1p(-p_col^W) a negative value quite close to 0.
-	long double logProbNoColsPerPair = log1pl(-p_colPower);
+	long double logProbNoColsPerPair = log1pf(-p_colPower);
 	assert(logProbNoColsPerPair < 0.0L);
 
 	//(L - W + 1) is the number of overlapping contiguous substrings of length W in a string of length L.
@@ -696,7 +696,7 @@ bool len_LRS_test(const uint8_t data[], const int L, const int k, const int verb
 		// Note, this N is O(L^2), so use of this value as an exponent tends to cause underflows here;
 		// in this case, this probability isn't accurately representable using the precision that we have to work with, but it is expected to
 		// round reasonably.
-		long double probNoCols = expl(((long double)N)*logProbNoColsPerPair);
+		long double probNoCols = expf(((long double)N)*logProbNoColsPerPair);
 		if(verbose > 2) {
 			printf("%s Longest Repeated Substring results: Pr(X >= 1) = %.22Lg\n",  label, 1.0L - probNoCols);
 		} else {
@@ -712,5 +712,5 @@ bool len_LRS_test(const uint8_t data[], const int L, const int k, const int verb
 	// iff 0.999 >= (1-p_col^W)^N
 	// iff log(0.999) >= N*log(1-p_col^W)
 	// iff log(0.999) >= N*log1p(-p_col^W)
-	return logl(0.999L) >= ((long double)N)* logProbNoColsPerPair;
+	return logf(0.999L) >= ((long double)N)* logProbNoColsPerPair;
 }
