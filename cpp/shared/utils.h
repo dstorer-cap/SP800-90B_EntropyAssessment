@@ -672,17 +672,17 @@ double randomUnit(uint64_t *xoshiro256starstarState) {
 }
 
 // Fisher-Yates Fast (in place) shuffle algorithm
-void FYshuffle(uint8_t data[], uint8_t rawdata[], const int sample_size, uint64_t *xoshiro256starstarState) {
-	long int r;
-	static mutex shuffle_mutex;
-	unique_lock<mutex> lock(shuffle_mutex);
+// void FYshuffle(uint8_t data[], uint8_t rawdata[], const int sample_size, uint64_t *xoshiro256starstarState) {
+// 	long int r;
+// 	static mutex shuffle_mutex;
+// 	unique_lock<mutex> lock(shuffle_mutex);
 
-	for (long int i = sample_size - 1; i > 0; --i) {
-		r = (long int)randomRange64((uint64_t)i, xoshiro256starstarState);
-		SWAP(data[r], data[i]);
-		SWAP(rawdata[r], rawdata[i]);
-	}
-}
+// 	for (long int i = sample_size - 1; i > 0; --i) {
+// 		r = (long int)randomRange64((uint64_t)i, xoshiro256starstarState);
+// 		SWAP(data[r], data[i]);
+// 		SWAP(rawdata[r], rawdata[i]);
+// 	}
+// }
 
 // Quick sum array  // TODO
 long int sum(const uint8_t arr[], const int sample_size) {

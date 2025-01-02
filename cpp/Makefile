@@ -48,7 +48,6 @@ CC_OPS := \
     -I ${DEP_LVM_PATH}/out/libvmm/include \
     -I ${DEP_LVM_PATH}/out/libvmm/dep/sddf/include \
     -I ${MKT_RTM_PATH_FILE}/include \
-    -D ${LIBVMM_BOARD} \
 
 LIB := \
     -L${DIVSURFSORT_PATH}/lib -ldivsufsort -ldivsufsort64 \
@@ -67,6 +66,8 @@ INC := -I${DIVSURFSORT_PATH}/include
 
 # non_iid.elf: ${TMP_PATH}/non_iid_main.o
 # 	$(CXX) $(CXXFLAGS) ${TMP_PATH}/non_iid_main.o $(LIB) $(SHARED_LIB) -o $@
+
+all: ${TMP_PATH}/non_iid_test.o ${TMP_PATH}/c_interface.o
 
 ${TMP_PATH}/non_iid_test.o: non_iid_test.cpp | ${TMP_PATH}
 	$(CXX) $(CXXFLAGS) $(INC) -c $< -o $@
