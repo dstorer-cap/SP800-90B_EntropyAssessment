@@ -1,4 +1,3 @@
-
 #include "shared/utils.h"
 #include "shared/most_common.h"
 #include "shared/lrs_test.h"
@@ -10,6 +9,19 @@
 #include "non_iid/multi_mcw_test.h"
 #include "non_iid/compression_test.h"
 #include "non_iid/markov_test.h"    
+
+// int __errno; // Declare a global variable for errno.
+// int* __errno_location(void) {
+//     return &__errno;
+// }
+extern "C" {
+    int read(int file, char *ptr, int len) { errno = ENOSYS; return -1; }
+    int write(int file, char *ptr, int len) { errno = ENOSYS; return -1; }
+    int lseek(int file, int offset, int whence) { errno = ENOSYS; return -1; }
+    int fstat(int file, struct stat *st) { errno = ENOSYS; return -1; }
+    int close(int file) { errno = ENOSYS; return -1; }
+    int isatty(int file) { return 0; }
+}
 
 extern "C"{
 void run_test(data_t* data_c){   
