@@ -1,7 +1,29 @@
 //Version of the tool
 #define VERSION "1.1.7"
 
+#ifndef powl
+#define powl pow
+#endif
+
+#ifndef logl
+#define logl log
+#endif
+
+#ifndef log2l
+#define log2l log2
+#endif
+
+#ifndef log1pl
+#define log1pl log1p
+#endif
+
+#ifndef expl
+#define expl exp
+#endif
+
 #pragma once
+#include <stdlib.h>
+#include <math.h>
 #include <iostream>		// std::cout
 #include <string>		// std::string
 #include <map>			// std::map
@@ -9,20 +31,18 @@
 #include <string.h>		// strlen
 #include <iomanip>		// setw / setfill
 #include <stdio.h>
-//#include <stdlib.h>
 #include <cstdlib>
 #include <vector>		// std::vector
 #include <time.h>		// time
 #include <algorithm>	// std::sort
 #include <cmath>		// pow, log2
 #include <array>		// std::array
-#include <omp.h>		// openmp 4.0 with gcc 4.9
+// #include <omp.h>		// openmp 4.0 with gcc 4.9
 #include <bitset>
 #include <mutex>		// std::mutex
 #include <assert.h>
 #include <cfloat>
-#include <math.h>
-#include "test_run_base.h"
+
 
 #define SWAP(x, y) do { int s = x; x = y; y = s; } while(0)
 #define INOPENINTERVAL(x, a, b) (((a)>(b))?(((x)>(b))&&((x)<(a))):(((x)>(a))&&((x)<(b))))
@@ -163,362 +183,362 @@ bool relEpsilonEqual(double A, double B, double maxAbsFactor, double maxRelFacto
 }
 
 
-void free_data(data_t *dp){
-	if(dp->symbols != NULL) free(dp->symbols);
-	if(dp->rawsymbols != NULL) free(dp->rawsymbols);
-	if((dp->word_size > 1) && (dp->bsymbols != NULL)) free(dp->bsymbols);
-} 
+// void free_data(data_t *dp){
+// 	if(dp->symbols != NULL) free(dp->symbols);
+// 	if(dp->rawsymbols != NULL) free(dp->rawsymbols);
+// 	if((dp->word_size > 1) && (dp->bsymbols != NULL)) free(dp->bsymbols);
+// } 
 
 
 // Read in binary file to test
-bool read_file_subset(const char *file_path, data_t *dp, unsigned long subsetIndex, unsigned long subsetSize, TestRunBase *testRun) {
+// bool read_file_subset(const char *file_path, data_t *dp, unsigned long subsetIndex, unsigned long subsetSize, TestRunBase *testRun) {
 
-	FILE *file; 
-	int mask, j, max_symbols;
-	long rc, i;
-	long fileLen;
+// 	FILE *file; 
+// 	int mask, j, max_symbols;
+// 	long rc, i;
+// 	long fileLen;
 
-	file = fopen(file_path, "rb");
-	if(!file){
-                testRun->errorLevel = -1;
-                testRun->errorMsg = "Error: could not open '%s'\n", file_path;
-		printf("Error: could not open '%s'\n", file_path);
-		return false;
-	}
+// 	file = fopen(file_path, "rb");
+// 	if(!file){
+//                 testRun->errorLevel = -1;
+//                 testRun->errorMsg = "Error: could not open '%s'\n", file_path;
+// 		printf("Error: could not open '%s'\n", file_path);
+// 		return false;
+// 	}
 
-	rc = (long)fseek(file, 0, SEEK_END);
-	if(rc < 0) {
-    testRun->errorLevel = -1;
-    testRun->errorMsg = "Error: fseek failed";
-    printf("Error: fseek failed\n");
-		fclose(file);
-		return false;
-	}
+// 	rc = (long)fseek(file, 0, SEEK_END);
+// 	if(rc < 0) {
+//     testRun->errorLevel = -1;
+//     testRun->errorMsg = "Error: fseek failed";
+//     printf("Error: fseek failed\n");
+// 		fclose(file);
+// 		return false;
+// 	}
 
-	fileLen = ftell(file);
-	if(fileLen < 0){
-    testRun->errorLevel = -1;
-    testRun->errorMsg = "Error: ftell failed";
-    printf("Error: ftell failed\n");
-		fclose(file);
-		return false;
-	}
+// 	fileLen = ftell(file);
+// 	if(fileLen < 0){
+//     testRun->errorLevel = -1;
+//     testRun->errorMsg = "Error: ftell failed";
+//     printf("Error: ftell failed\n");
+// 		fclose(file);
+// 		return false;
+// 	}
 
-	rewind(file);
+// 	rewind(file);
 
-	if(subsetSize == 0) {
-		dp->len = fileLen;
-	} else {
-		rc = (long)fseek(file, subsetIndex*subsetSize, SEEK_SET);
-		if(rc < 0){
-                        testRun->errorLevel = -1;
-                        testRun->errorMsg = "Error: fseek failed";
-			printf("Error: fseek failed\n");
-			fclose(file);
-			return false;
-		}
+// 	if(subsetSize == 0) {
+// 		dp->len = fileLen;
+// 	} else {
+// 		rc = (long)fseek(file, subsetIndex*subsetSize, SEEK_SET);
+// 		if(rc < 0){
+//                         testRun->errorLevel = -1;
+//                         testRun->errorMsg = "Error: fseek failed";
+// 			printf("Error: fseek failed\n");
+// 			fclose(file);
+// 			return false;
+// 		}
 
-		dp->len = min(fileLen - subsetIndex*subsetSize, subsetSize);
-	}
+// 		dp->len = min(fileLen - subsetIndex*subsetSize, subsetSize);
+// 	}
 
-	if(dp->len == 0){
-    testRun->errorLevel = -1;
-    testRun->errorMsg = "Error: '%s' is empty\n", file_path;
-    printf("Error: '%s' is empty\n", file_path);
-		fclose(file);
-		return false;
-	}
+// 	if(dp->len == 0){
+//     testRun->errorLevel = -1;
+//     testRun->errorMsg = "Error: '%s' is empty\n", file_path;
+//     printf("Error: '%s' is empty\n", file_path);
+// 		fclose(file);
+// 		return false;
+// 	}
 
-	dp->symbols = (uint8_t*)malloc(sizeof(uint8_t)*dp->len);
-	dp->rawsymbols = (uint8_t*)malloc(sizeof(uint8_t)*dp->len);
-	if((dp->symbols == NULL) || (dp->rawsymbols == NULL)){
-    testRun->errorLevel = -1;
-    testRun->errorMsg = "Error: failure to initialize memory for symbols";
-    printf("Error: failure to initialize memory for symbols\n");
-		fclose(file);
-		if(dp->symbols != NULL) {
-			free(dp->symbols);
-			dp->symbols = NULL;
-		}
-		if(dp->rawsymbols != NULL) {
-			free(dp->rawsymbols);
-			dp->rawsymbols = NULL;
-		}
-		return false;
-	}
+// 	dp->symbols = (uint8_t*)malloc(sizeof(uint8_t)*dp->len);
+// 	dp->rawsymbols = (uint8_t*)malloc(sizeof(uint8_t)*dp->len);
+// 	if((dp->symbols == NULL) || (dp->rawsymbols == NULL)){
+//     testRun->errorLevel = -1;
+//     testRun->errorMsg = "Error: failure to initialize memory for symbols";
+//     printf("Error: failure to initialize memory for symbols\n");
+// 		fclose(file);
+// 		if(dp->symbols != NULL) {
+// 			free(dp->symbols);
+// 			dp->symbols = NULL;
+// 		}
+// 		if(dp->rawsymbols != NULL) {
+// 			free(dp->rawsymbols);
+// 			dp->rawsymbols = NULL;
+// 		}
+// 		return false;
+// 	}
 
-	rc = fread(dp->symbols, sizeof(uint8_t), dp->len, file);
-	if(rc != dp->len){
-    testRun->errorLevel = -1;
-    testRun->errorMsg = "Error: file read failure";
-    printf("Error: file read failure\n");
-		fclose(file);
-		free(dp->symbols);
-		dp->symbols = NULL;
-		free(dp->rawsymbols);
-		dp->rawsymbols = NULL;
-		return false;
-	}
-	fclose(file);
+// 	rc = fread(dp->symbols, sizeof(uint8_t), dp->len, file);
+// 	if(rc != dp->len){
+//     testRun->errorLevel = -1;
+//     testRun->errorMsg = "Error: file read failure";
+//     printf("Error: file read failure\n");
+// 		fclose(file);
+// 		free(dp->symbols);
+// 		dp->symbols = NULL;
+// 		free(dp->rawsymbols);
+// 		dp->rawsymbols = NULL;
+// 		return false;
+// 	}
+// 	fclose(file);
 
-	//Do we need to establish the word size?
-	if(dp->word_size == 0) {
-		uint8_t datamask = 0;
-		uint8_t curbit = 0x80;
+// 	//Do we need to establish the word size?
+// 	if(dp->word_size == 0) {
+// 		uint8_t datamask = 0;
+// 		uint8_t curbit = 0x80;
 
-		for(i = 0; i < dp->len; i++) {
-			datamask = datamask | dp->symbols[i];
-		}
+// 		for(i = 0; i < dp->len; i++) {
+// 			datamask = datamask | dp->symbols[i];
+// 		}
 
-		for(i=8; (i>0) && ((datamask & curbit) == 0); i--) {
-			curbit = curbit >> 1;
-		}
+// 		for(i=8; (i>0) && ((datamask & curbit) == 0); i--) {
+// 			curbit = curbit >> 1;
+// 		}
 
-		dp->word_size = i;
-	} else {
-		uint8_t datamask = 0;
-		uint8_t curbit = 0x80;
+// 		dp->word_size = i;
+// 	} else {
+// 		uint8_t datamask = 0;
+// 		uint8_t curbit = 0x80;
 
-		for(i = 0; i < dp->len; i++) {
-			datamask = datamask | dp->symbols[i];
-		}
+// 		for(i = 0; i < dp->len; i++) {
+// 			datamask = datamask | dp->symbols[i];
+// 		}
 
-		for(i=8; (i>0) && ((datamask & curbit) == 0); i--) {
-			curbit = curbit >> 1;
-		}
+// 		for(i=8; (i>0) && ((datamask & curbit) == 0); i--) {
+// 			curbit = curbit >> 1;
+// 		}
 
-		if( i < dp->word_size ) {
-			printf("Warning: Symbols appear to be narrower than described.\n");
-                        testRun->errorMsg = "Warning: Symbols appear to be narrower than described.";
-		} else if( i > dp->word_size ) {
-                        testRun->errorLevel = -1;
-                        testRun->errorMsg = "Error: Incorrect bit width specification: Data (" + std::to_string(i) + ") does not fit within described bit width: " + std::to_string(dp->word_size) + ".";
-			printf("Incorrect bit width specification: Data (%ld) does not fit within described bit width: %d.\n",i,dp->word_size); 
-                        free(dp->symbols);
-			dp->symbols = NULL;
-			free(dp->rawsymbols);
-			dp->rawsymbols = NULL;
-			return false;
-		}
-	}
+// 		if( i < dp->word_size ) {
+// 			printf("Warning: Symbols appear to be narrower than described.\n");
+//                         testRun->errorMsg = "Warning: Symbols appear to be narrower than described.";
+// 		} else if( i > dp->word_size ) {
+//                         testRun->errorLevel = -1;
+//                         testRun->errorMsg = "Error: Incorrect bit width specification: Data (" + std::to_string(i) + ") does not fit within described bit width: " + std::to_string(dp->word_size) + ".";
+// 			printf("Incorrect bit width specification: Data (%ld) does not fit within described bit width: %d.\n",i,dp->word_size); 
+//                         free(dp->symbols);
+// 			dp->symbols = NULL;
+// 			free(dp->rawsymbols);
+// 			dp->rawsymbols = NULL;
+// 			return false;
+// 		}
+// 	}
 
-	memcpy(dp->rawsymbols, dp->symbols, sizeof(uint8_t)* dp->len);
-	dp->maxsymbol = 0;
+// 	memcpy(dp->rawsymbols, dp->symbols, sizeof(uint8_t)* dp->len);
+// 	dp->maxsymbol = 0;
 
-	max_symbols = 1 << dp->word_size;
-	int symbol_map_down_table[max_symbols];
+// 	max_symbols = 1 << dp->word_size;
+// 	int symbol_map_down_table[max_symbols];
 
-	// create symbols (samples) and check if they need to be mapped down
-	dp->alph_size = 0;
-	memset(symbol_map_down_table, 0, max_symbols*sizeof(int));
-	mask = max_symbols-1;
-	for(i = 0; i < dp->len; i++){ 
-		dp->symbols[i] &= mask;
-		if(dp->symbols[i] > dp->maxsymbol) dp->maxsymbol = dp->symbols[i];
-		if(symbol_map_down_table[dp->symbols[i]] == 0) symbol_map_down_table[dp->symbols[i]] = 1;
-	}
+// 	// create symbols (samples) and check if they need to be mapped down
+// 	dp->alph_size = 0;
+// 	memset(symbol_map_down_table, 0, max_symbols*sizeof(int));
+// 	mask = max_symbols-1;
+// 	for(i = 0; i < dp->len; i++){ 
+// 		dp->symbols[i] &= mask;
+// 		if(dp->symbols[i] > dp->maxsymbol) dp->maxsymbol = dp->symbols[i];
+// 		if(symbol_map_down_table[dp->symbols[i]] == 0) symbol_map_down_table[dp->symbols[i]] = 1;
+// 	}
 
-	for(i = 0; i < max_symbols; i++){
-		if(symbol_map_down_table[i] != 0) symbol_map_down_table[i] = (uint8_t)dp->alph_size++;
-	}
+// 	for(i = 0; i < max_symbols; i++){
+// 		if(symbol_map_down_table[i] != 0) symbol_map_down_table[i] = (uint8_t)dp->alph_size++;
+// 	}
 
-	// create bsymbols (bitstring) using the non-mapped data
-	dp->blen = dp->len * dp->word_size;
-	if(dp->word_size == 1) dp->bsymbols = dp->symbols;
-	else{
-		dp->bsymbols = (uint8_t*)malloc(dp->blen);
-		if(dp->bsymbols == NULL){
-			printf("Error: failure to initialize memory for bsymbols\n");
-			free(dp->symbols);
-			dp->symbols = NULL;
-			free(dp->rawsymbols);
-			dp->rawsymbols = NULL;
+// 	// create bsymbols (bitstring) using the non-mapped data
+// 	dp->blen = dp->len * dp->word_size;
+// 	if(dp->word_size == 1) dp->bsymbols = dp->symbols;
+// 	else{
+// 		dp->bsymbols = (uint8_t*)malloc(dp->blen);
+// 		if(dp->bsymbols == NULL){
+// 			printf("Error: failure to initialize memory for bsymbols\n");
+// 			free(dp->symbols);
+// 			dp->symbols = NULL;
+// 			free(dp->rawsymbols);
+// 			dp->rawsymbols = NULL;
 
-			return false;
-		}
+// 			return false;
+// 		}
 
-		for(i = 0; i < dp->len; i++){
-			for(j = 0; j < dp->word_size; j++){
-				dp->bsymbols[i*dp->word_size+j] = (dp->symbols[i] >> (dp->word_size-1-j)) & 0x1;
-			}
-		}
-	}
+// 		for(i = 0; i < dp->len; i++){
+// 			for(j = 0; j < dp->word_size; j++){
+// 				dp->bsymbols[i*dp->word_size+j] = (dp->symbols[i] >> (dp->word_size-1-j)) & 0x1;
+// 			}
+// 		}
+// 	}
 
-	// map down symbols if less than 2^bits_per_word unique symbols
-	if(dp->alph_size < dp->maxsymbol + 1){
-		for(i = 0; i < dp->len; i++) dp->symbols[i] = (uint8_t)symbol_map_down_table[dp->symbols[i]];
-	} 
+// 	// map down symbols if less than 2^bits_per_word unique symbols
+// 	if(dp->alph_size < dp->maxsymbol + 1){
+// 		for(i = 0; i < dp->len; i++) dp->symbols[i] = (uint8_t)symbol_map_down_table[dp->symbols[i]];
+// 	} 
 
-	return true;
-}
+// 	return true;
+// }
 
-bool read_file(const char *file_path, data_t *dp, TestRunBase *testRun){
+// bool read_file(const char *file_path, data_t *dp, TestRunBase *testRun){
 
-	FILE *file; 
-	int mask, j, max_symbols;
-	long rc, i;
+// 	FILE *file; 
+// 	int mask, j, max_symbols;
+// 	long rc, i;
 
-	file = fopen(file_path, "rb");
-	if(!file){
-                testRun->errorLevel = -1;
-                testRun->errorMsg = "Error: could not open '%s'\n", file_path;
-		printf("Error: could not open '%s'\n", file_path);
-		return false;
-	}
+// 	file = fopen(file_path, "rb");
+// 	if(!file){
+//                 testRun->errorLevel = -1;
+//                 testRun->errorMsg = "Error: could not open '%s'\n", file_path;
+// 		printf("Error: could not open '%s'\n", file_path);
+// 		return false;
+// 	}
 
-	rc = (long)fseek(file, 0, SEEK_END);
-	if(rc < 0){
-                testRun->errorLevel = -1;
-                testRun->errorMsg = "Error: fseek failed";
-		printf("Error: fseek failed\n");
-		fclose(file);
-		return false;
-	}
+// 	rc = (long)fseek(file, 0, SEEK_END);
+// 	if(rc < 0){
+//                 testRun->errorLevel = -1;
+//                 testRun->errorMsg = "Error: fseek failed";
+// 		printf("Error: fseek failed\n");
+// 		fclose(file);
+// 		return false;
+// 	}
 
-	dp->len = ftell(file);
-	if(dp->len < 0){
-                testRun->errorLevel = -1;
-                testRun->errorMsg = "Error: ftell failed";
-		printf("Error: ftell failed\n");
-		fclose(file);
-		return false;
-	}
+// 	dp->len = ftell(file);
+// 	if(dp->len < 0){
+//                 testRun->errorLevel = -1;
+//                 testRun->errorMsg = "Error: ftell failed";
+// 		printf("Error: ftell failed\n");
+// 		fclose(file);
+// 		return false;
+// 	}
 
-	rewind(file);
+// 	rewind(file);
 
-	if(dp->len == 0){
-                testRun->errorLevel = -1;
-                testRun->errorMsg = "Error: '%s' is empty\n", file_path;
-		printf("Error: '%s' is empty\n", file_path);
-		fclose(file);
-		return false;
-	}
+// 	if(dp->len == 0){
+//                 testRun->errorLevel = -1;
+//                 testRun->errorMsg = "Error: '%s' is empty\n", file_path;
+// 		printf("Error: '%s' is empty\n", file_path);
+// 		fclose(file);
+// 		return false;
+// 	}
 
-	dp->symbols = (uint8_t*)malloc(sizeof(uint8_t)*dp->len);
-	dp->rawsymbols = (uint8_t*)malloc(sizeof(uint8_t)*dp->len);
-        if((dp->symbols == NULL) || (dp->rawsymbols == NULL)){
-                testRun->errorLevel = -1;
-                testRun->errorMsg = "Error: failure to initialize memory for symbols";
-                printf("Error: failure to initialize memory for symbols\n");
-                fclose(file);
-                if(dp->symbols != NULL) {
-                        free(dp->symbols);
-                        dp->symbols = NULL;
-                }
-                if(dp->rawsymbols != NULL) {
-                        free(dp->rawsymbols);
-                        dp->rawsymbols = NULL;
-                }
-                return false;
-        }
+// 	dp->symbols = (uint8_t*)malloc(sizeof(uint8_t)*dp->len);
+// 	dp->rawsymbols = (uint8_t*)malloc(sizeof(uint8_t)*dp->len);
+//         if((dp->symbols == NULL) || (dp->rawsymbols == NULL)){
+//                 testRun->errorLevel = -1;
+//                 testRun->errorMsg = "Error: failure to initialize memory for symbols";
+//                 printf("Error: failure to initialize memory for symbols\n");
+//                 fclose(file);
+//                 if(dp->symbols != NULL) {
+//                         free(dp->symbols);
+//                         dp->symbols = NULL;
+//                 }
+//                 if(dp->rawsymbols != NULL) {
+//                         free(dp->rawsymbols);
+//                         dp->rawsymbols = NULL;
+//                 }
+//                 return false;
+//         }
 
-	rc = fread(dp->symbols, sizeof(uint8_t), dp->len, file);
-	if(rc != dp->len){
-                testRun->errorLevel = -1;
-                testRun->errorMsg = "Error: file read failure";       
-		printf("Error: file read failure\n");
-		fclose(file);
-		free(dp->symbols);
-		dp->symbols = NULL;
-		free(dp->rawsymbols);
-		dp->rawsymbols = NULL;
-		return false;
-	}
-	fclose(file);
+// 	rc = fread(dp->symbols, sizeof(uint8_t), dp->len, file);
+// 	if(rc != dp->len){
+//                 testRun->errorLevel = -1;
+//                 testRun->errorMsg = "Error: file read failure";       
+// 		printf("Error: file read failure\n");
+// 		fclose(file);
+// 		free(dp->symbols);
+// 		dp->symbols = NULL;
+// 		free(dp->rawsymbols);
+// 		dp->rawsymbols = NULL;
+// 		return false;
+// 	}
+// 	fclose(file);
 
-	//Do we need to establish the word size?
-	if(dp->word_size == 0) {
-		//Yes. Establish the word size using the highest order bit in use
-		uint8_t datamask = 0;
-		uint8_t curbit = 0x80;
+// 	//Do we need to establish the word size?
+// 	if(dp->word_size == 0) {
+// 		//Yes. Establish the word size using the highest order bit in use
+// 		uint8_t datamask = 0;
+// 		uint8_t curbit = 0x80;
 
-		for(i = 0; i < dp->len; i++) {
-			datamask = datamask | dp->symbols[i];
-		}
+// 		for(i = 0; i < dp->len; i++) {
+// 			datamask = datamask | dp->symbols[i];
+// 		}
 
-		for(i=8; (i>0) && ((datamask & curbit) == 0); i--) {
-			curbit = curbit >> 1;
-		}
+// 		for(i=8; (i>0) && ((datamask & curbit) == 0); i--) {
+// 			curbit = curbit >> 1;
+// 		}
 
-		dp->word_size = i;
-       } else {
-                uint8_t datamask = 0;
-		uint8_t curbit = 0x80;
+// 		dp->word_size = i;
+//        } else {
+//                 uint8_t datamask = 0;
+// 		uint8_t curbit = 0x80;
 
-                for(i = 0; i < dp->len; i++) {
-                        datamask = datamask | dp->symbols[i];
-                }
+//                 for(i = 0; i < dp->len; i++) {
+//                         datamask = datamask | dp->symbols[i];
+//                 }
 
-                for(i=8; (i>0) && ((datamask & curbit) == 0); i--) {
-                        curbit = curbit >> 1;
-                }
+//                 for(i=8; (i>0) && ((datamask & curbit) == 0); i--) {
+//                         curbit = curbit >> 1;
+//                 }
 
-                if( i < dp->word_size ) {
-                        printf("Warning: Symbols appear to be narrower than described.\n");
-                        testRun->errorMsg = "Warning: Symbols appear to be narrower than described.";                  
-                } else if( i > dp->word_size ) {
-                        testRun->errorLevel = -1;
-                        testRun->errorMsg = "Error: Incorrect bit width specification: Data (" + std::to_string(i) + ") does not fit within described bit width: " + std::to_string(dp->word_size) + ".";
-			printf("Incorrect bit width specification: Data (%ld) does not fit within described bit width: %d.\n",i,dp->word_size);
-                        free(dp->symbols);
-                        dp->symbols = NULL;
-                        free(dp->rawsymbols);
-                        dp->rawsymbols = NULL;
-                        return false;
-                }
-        }
+//                 if( i < dp->word_size ) {
+//                         printf("Warning: Symbols appear to be narrower than described.\n");
+//                         testRun->errorMsg = "Warning: Symbols appear to be narrower than described.";                  
+//                 } else if( i > dp->word_size ) {
+//                         testRun->errorLevel = -1;
+//                         testRun->errorMsg = "Error: Incorrect bit width specification: Data (" + std::to_string(i) + ") does not fit within described bit width: " + std::to_string(dp->word_size) + ".";
+// 			printf("Incorrect bit width specification: Data (%ld) does not fit within described bit width: %d.\n",i,dp->word_size);
+//                         free(dp->symbols);
+//                         dp->symbols = NULL;
+//                         free(dp->rawsymbols);
+//                         dp->rawsymbols = NULL;
+//                         return false;
+//                 }
+//         }
 
 
-	memcpy(dp->rawsymbols, dp->symbols, sizeof(uint8_t)* dp->len);
-	dp->maxsymbol = 0;
+// 	memcpy(dp->rawsymbols, dp->symbols, sizeof(uint8_t)* dp->len);
+// 	dp->maxsymbol = 0;
 
-	max_symbols = 1 << dp->word_size;
-	int symbol_map_down_table[max_symbols];
+// 	max_symbols = 1 << dp->word_size;
+// 	int symbol_map_down_table[max_symbols];
 
-	// create symbols (samples) and check if they need to be mapped down
-	dp->alph_size = 0;
-	memset(symbol_map_down_table, 0, max_symbols*sizeof(int));
-	mask = max_symbols-1;
-	for(i = 0; i < dp->len; i++){ 
-		dp->symbols[i] &= mask;
-		if(dp->symbols[i] > dp->maxsymbol) dp->maxsymbol = dp->symbols[i];
-		if(symbol_map_down_table[dp->symbols[i]] == 0) symbol_map_down_table[dp->symbols[i]] = 1;
-	}
+// 	// create symbols (samples) and check if they need to be mapped down
+// 	dp->alph_size = 0;
+// 	memset(symbol_map_down_table, 0, max_symbols*sizeof(int));
+// 	mask = max_symbols-1;
+// 	for(i = 0; i < dp->len; i++){ 
+// 		dp->symbols[i] &= mask;
+// 		if(dp->symbols[i] > dp->maxsymbol) dp->maxsymbol = dp->symbols[i];
+// 		if(symbol_map_down_table[dp->symbols[i]] == 0) symbol_map_down_table[dp->symbols[i]] = 1;
+// 	}
 
-	for(i = 0; i < max_symbols; i++){
-		if(symbol_map_down_table[i] != 0) symbol_map_down_table[i] = (uint8_t)dp->alph_size++;
-	}
+// 	for(i = 0; i < max_symbols; i++){
+// 		if(symbol_map_down_table[i] != 0) symbol_map_down_table[i] = (uint8_t)dp->alph_size++;
+// 	}
 
-	// create bsymbols (bitstring) using the non-mapped data
-	dp->blen = dp->len * dp->word_size;
-	if(dp->word_size == 1) dp->bsymbols = dp->symbols;
-	else{
-		dp->bsymbols = (uint8_t*)malloc(dp->blen);
-		if(dp->bsymbols == NULL){
-                        testRun->errorLevel = -1;
-                        testRun->errorMsg = "Error: failure to initialize memory for bsymbols";
-			printf("Error: failure to initialize memory for bsymbols\n");
-                        free(dp->symbols);
-			dp->symbols = NULL;
-			free(dp->rawsymbols);
-			dp->rawsymbols = NULL;
-			return false;
-		}
+// 	// create bsymbols (bitstring) using the non-mapped data
+// 	dp->blen = dp->len * dp->word_size;
+// 	if(dp->word_size == 1) dp->bsymbols = dp->symbols;
+// 	else{
+// 		dp->bsymbols = (uint8_t*)malloc(dp->blen);
+// 		if(dp->bsymbols == NULL){
+//                         testRun->errorLevel = -1;
+//                         testRun->errorMsg = "Error: failure to initialize memory for bsymbols";
+// 			printf("Error: failure to initialize memory for bsymbols\n");
+//                         free(dp->symbols);
+// 			dp->symbols = NULL;
+// 			free(dp->rawsymbols);
+// 			dp->rawsymbols = NULL;
+// 			return false;
+// 		}
 
-		for(i = 0; i < dp->len; i++){
-			for(j = 0; j < dp->word_size; j++){
-				dp->bsymbols[i*dp->word_size+j] = (dp->symbols[i] >> (dp->word_size-1-j)) & 0x1;
-			}
-		}
-	}
+// 		for(i = 0; i < dp->len; i++){
+// 			for(j = 0; j < dp->word_size; j++){
+// 				dp->bsymbols[i*dp->word_size+j] = (dp->symbols[i] >> (dp->word_size-1-j)) & 0x1;
+// 			}
+// 		}
+// 	}
 
-	// map down symbols if less than 2^bits_per_word unique symbols
-	if(dp->alph_size < dp->maxsymbol + 1){
-		for(i = 0; i < dp->len; i++) dp->symbols[i] = (uint8_t)symbol_map_down_table[dp->symbols[i]];
-	} 
+// 	// map down symbols if less than 2^bits_per_word unique symbols
+// 	if(dp->alph_size < dp->maxsymbol + 1){
+// 		for(i = 0; i < dp->len; i++) dp->symbols[i] = (uint8_t)symbol_map_down_table[dp->symbols[i]];
+// 	} 
 
-	return true;
-}
+// 	return true;
+// }
 
 /* This is xoshiro256** 1.0*/
 /*This implementation is derived from David Blackman and Sebastiano Vigna, which they placed into

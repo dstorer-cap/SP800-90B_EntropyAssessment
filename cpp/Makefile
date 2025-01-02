@@ -1,46 +1,82 @@
-ARCH ?= x86
+#===========================================================
+# Layout
+#===========================================================
+DEP_PATH := ../../../dep
+SRC_PATH := ../../../src
+TMP_PATH := tmp
+OUT_PATH := ../../../out
 
-CXX ?= $(CROSS_COMPILE)g++
+DEP_DTS_PATH := ${DEP_PATH}/dts
+DEP_GST_PATH := ${DEP_PATH}/guest
+DEP_LVM_PATH := ${DEP_PATH}/libvmm
+DEP_MKT_PATH := ${DEP_PATH}/microkit
+DEP_HLT_PATH := ${DEP_PATH}/ent_random_sequence_tester
+DEP_PLC_PATH := ${DEP_PATH}/picolibc
 
-CXXFLAGS = -std=c++11 -fopenmp -O2 -ffloat-store -I/usr/include/jsoncpp
-ifeq ($(ARCH),x86)
-CXXFLAGS += -msse2 -march=native
-endif
+CPU := cortex-a53
+TCH := aarch64-none-elf
+CC := ${TCH}-gcc
+LD := ${TCH}-ld
+AS := ${TCH}-as
 
-#CXX = clang++-15
-#CXXFLAGS = -g -Wno-padded -Wno-disabled-macro-expansion -Wno-gnu-statement-expression -Wno-bad-function-cast -fopenmp -O1 -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer -fdenormal-fp-math=ieee -msse2 -march=native -I/usr/include/jsoncpp
-#static analysis in clang using
-#scan-build-15 --use-c++=/usr/bin/clang++-15 make
-LIB = -lbz2 -lpthread -ldivsufsort -ldivsufsort64
-COND_LIB = -lmpfr -lgmp
-SHARED_LIB = -ljsoncpp -lcrypto
-INC =
+MKT_BOARD := maaxboard
+MKT_CONFIG := debug
 
-######
-# Main operations
-######
+MKT_SDK_PATH := ${DEP_MKT_PATH}/out/microkit-sdk-1.4.1
+MKT_PATH_FILE := ${MKT_SDK_PATH}/bin/microkit
+MKT_RTM_PATH_FILE := ${MKT_SDK_PATH}/board/${MKT_BOARD}/${MKT_CONFIG}
+PICOLIBC_PATH = ${DEP_PLC_PATH}/picolibc_build/picolibc/aarch64-none-elf
 
-all:    iid non_iid restart conditioning transpose
+DIVSURFSORT_PATH := /home/dstorer/svn_apricot/apricot/development/wip/daniel/single-linux-guest-nitrokey/dep/SP800-90B_EntropyAssessment/libdivsufsort/build
 
-clean:
-	rm -f ea_iid ea_non_iid ea_restart ea_conditioning ea_transpose selftest/*.res
+ARCH := aarch64
 
-iid: iid_main.o
-iid_main.o: iid_main.cpp
-	$(CXX) $(CXXFLAGS) $(INC) iid_main.cpp -o ea_iid $(LIB) $(SHARED_LIB)
-	
-non_iid: non_iid_main.o	
-non_iid_main.o: non_iid_main.cpp
-	$(CXX) $(CXXFLAGS) $(INC) non_iid_main.cpp -o ea_non_iid $(LIB) $(SHARED_LIB)
+override CXX := aarch64-none-elf-g++
 
-restart: restart_main.o
-restart_main.o: restart_main.cpp
-	$(CXX) $(CXXFLAGS) $(INC) restart_main.cpp -o ea_restart $(LIB) $(SHARED_LIB)
+CXXFLAGS := -mcpu=${CPU} -std=c++11 -ffreestanding -nostdlib -O2 -ffloat-store -fpermissive
 
-conditioning: conditioning_main.o
-conditioning_main.o: conditioning_main.cpp
-	$(CXX) $(CXXFLAGS) $(INC) conditioning_main.cpp -o ea_conditioning $(LIB) $(COND_LIB) $(SHARED_LIB)
+CC_OPS := \
+    -c \
+    -mcpu=${CPU} \
+    -ffreestanding \
+    -nostdlib \
+    -mstrict-align \
+    -g3 \
+    -O3 \
+    -Wall \
+    -Wno-unused-function \
+    -I ${DEP_LVM_PATH}/out/libvmm/include \
+    -I ${DEP_LVM_PATH}/out/libvmm/dep/sddf/include \
+    -I ${MKT_RTM_PATH_FILE}/include \
+    -D ${LIBVMM_BOARD} \
 
-transpose: transpose_main.o
-transpose_main.o: transpose_main.cpp
-	$(CXX) $(CXXFLAGS) $(INC) transpose_main.cpp -o ea_transpose $(LIB) $(SHARED_LIB)
+LIB := \
+    -L${DIVSURFSORT_PATH}/lib -ldivsufsort -ldivsufsort64 \
+    # -L${MKT_RTM_PATH_FILE}/lib \
+    # -lmicrokit \
+    # -Tmicrokit.ld 
+
+COND_LIB := -lmpfr -lgmp
+SHARED_LIB := 
+INC := -I${DIVSURFSORT_PATH}/include
+
+#===========================================================
+# Targets
+#===========================================================
+
+
+# non_iid.elf: ${TMP_PATH}/non_iid_main.o
+# 	$(CXX) $(CXXFLAGS) ${TMP_PATH}/non_iid_main.o $(LIB) $(SHARED_LIB) -o $@
+
+${TMP_PATH}/non_iid_test.o: non_iid_test.cpp | ${TMP_PATH}
+	$(CXX) $(CXXFLAGS) $(INC) -c $< -o $@
+
+${TMP_PATH}/c_interface.o: c_interface.c | ${TMP_PATH}
+	$(CC) ${CC_OPS} -I ${MKT_RTM_PATH_FILE}/include -I ${PICOLIBC_PATH}/include/ -c $< -o $@
+
+${TMP_PATH}:
+	mkdir -p ${TMP_PATH}
+
+# clean:
+# 	rm -f *.o non_iid.elf
+# 	rm -f ea_iid ea_non_iid ea_restart ea_conditioning ea_transpose selftest/*.res
