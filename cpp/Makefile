@@ -25,7 +25,7 @@ MKT_CONFIG := debug
 MKT_SDK_PATH := ${DEP_MKT_PATH}/out/microkit-sdk-1.4.1
 MKT_PATH_FILE := ${MKT_SDK_PATH}/bin/microkit
 MKT_RTM_PATH_FILE := ${MKT_SDK_PATH}/board/${MKT_BOARD}/${MKT_CONFIG}
-PICOLIBC_PATH = ${DEP_PLC_PATH}/picolibc_build/picolibc/aarch64-none-elf
+PICOLIBC_PATH = ${DEP_PLC_PATH}/picolibc_build/picolibc/aarch64-linux-gnu
 
 DIVSURFSORT_PATH := /home/dstorer/svn_apricot/apricot/development/wip/daniel/single-linux-guest-nitrokey/dep/SP800-90B_EntropyAssessment/libdivsufsort/build
 
@@ -57,7 +57,7 @@ LIB := \
 
 COND_LIB := -lmpfr -lgmp
 SHARED_LIB := 
-INC := -I${DIVSURFSORT_PATH}/include
+INC := -I${DIVSURFSORT_PATH}/include 
 
 #===========================================================
 # Targets
@@ -73,7 +73,7 @@ ${TMP_PATH}/non_iid_test.o: non_iid_test.cpp | ${TMP_PATH}
 	$(CXX) $(CXXFLAGS) $(INC) -c $< -o $@
 
 ${TMP_PATH}/c_interface.o: c_interface.c | ${TMP_PATH}
-	$(CC) ${CC_OPS} -I ${MKT_RTM_PATH_FILE}/include -I ${PICOLIBC_PATH}/include/ -c $< -o $@
+	$(CC) ${CC_OPS} -I ${MKT_RTM_PATH_FILE}/include -I../../../src/ -I${PICOLIBC_PATH}/include/  -c $< -o $@
 
 ${TMP_PATH}:
 	mkdir -p ${TMP_PATH}

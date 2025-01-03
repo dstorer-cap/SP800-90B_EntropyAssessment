@@ -8,12 +8,16 @@
 #include "non_iid/lag_test.h"
 #include "non_iid/multi_mcw_test.h"
 #include "non_iid/compression_test.h"
-#include "non_iid/markov_test.h"    
+#include "non_iid/markov_test.h" 
+#include <cstdio>   // For FILE
+#include <sys/time.h> // For struct timeval
+#include <errno.h>
 
-// int __errno; // Declare a global variable for errno.
-// int* __errno_location(void) {
-//     return &__errno;
-// }
+
+// Define __errno() for compatibility with existing headers
+extern "C" int *__errno() {
+    return &errno;
+}
 extern "C" {
     int read(int file, char *ptr, int len) { errno = ENOSYS; return -1; }
     int write(int file, char *ptr, int len) { errno = ENOSYS; return -1; }
@@ -21,6 +25,33 @@ extern "C" {
     int fstat(int file, struct stat *st) { errno = ENOSYS; return -1; }
     int close(int file) { errno = ENOSYS; return -1; }
     int isatty(int file) { return 0; }
+}
+
+extern "C"{
+struct _reent _impure_data = { 0 };
+struct _reent *_impure_ptr = &_impure_data;
+
+// Link against stdio_microkit instead of this
+FILE __stdout;
+FILE __stdin;
+FILE __stderr;
+
+void _exit(int status) {
+    while (1); // Infinite loop to stop execution
+}
+
+int gettimeofday(struct timeval *tv, void *tz) {
+    if (tv) {
+        tv->tv_sec = 0;
+        tv->tv_usec = 0;
+    }
+    return 0; // Return success
+}
+
+int open(const char *pathname, int flags) {
+    errno = ENOSYS; // Function not implemented
+    return -1;
+}
 }
 
 extern "C"{

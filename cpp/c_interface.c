@@ -1,10 +1,12 @@
-// #include <microkit.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
 #include <time.h>
+#include <microkit.h>
+#include <stdio_microkit.h>
 #include "non_iid_test.h"
 
 // Set to memory mapped buffer entropy is written into
@@ -12,7 +14,11 @@
 
 bool read_file_subset(data_t* data);
 
-int main(void){
+void notified(microkit_channel ch){
+	
+}
+
+void init(void){
     int verbose = 1; //verbose 0 is for JSON output, 1 is the normal mode, 2 is the NIST tool verbose mode, and 3 is for extra verbose output
     bool quietMode = false;
     double H_original, H_bitstring;
