@@ -16,7 +16,15 @@ struct data_t{
 #ifdef __cplusplus
 extern "C" {
 #endif
-    void run_test(data_t* data);
+	double most_common(uint8_t* data, const long len, const int alph_size, const int verbose, const char *label);
+	double collision_test(uint8_t* data, long len, const int verbose, const char *label);
+	double markov_test(uint8_t* data, long len, const int verbose, const char *label);
+	double compression_test(uint8_t* data, long len, const int verbose, const char *label);
+	void SAalgs(const uint8_t text[], long int n, int k, double* t_tuple_res, double* lrs_res, const int verbose, const char *label);
+	double multi_mcw_test(uint8_t *data, long len, int alph_size, const int verbose, const char *label);
+	double lag_test(uint8_t *S, long L, int k, const int verbose, const char *label);
+	double multi_mmc_test(uint8_t *data, long len, int alph_size, const int verbose, const char *label);
+	double LZ78Y_test(uint8_t *data, long len, int alph_size, const int verbose, const char *label);
 #ifdef __cplusplus
 }
 #endif

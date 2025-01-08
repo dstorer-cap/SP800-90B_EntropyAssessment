@@ -73,9 +73,39 @@ INC := -I${DIVSURFSORT_PATH}/include
 # non_iid.elf: ${TMP_PATH}/non_iid_main.o
 # 	$(CXX) $(CXXFLAGS) ${TMP_PATH}/non_iid_main.o $(LIB) $(SHARED_LIB) -o $@
 
-all: ${TMP_PATH}/non_iid_test.o ${TMP_PATH}/c_interface.o
+all: ${TMP_PATH}/c_interface.o ${TMP_PATH}/most_common.o ${TMP_PATH}/collision_test.o ${TMP_PATH}/markov_test.o ${TMP_PATH}/compression_test.o ${TMP_PATH}/lrs_test.o  ${TMP_PATH}/multi_mcw_test.o ${TMP_PATH}/lag_test.o ${TMP_PATH}/multi_mmc_test.o ${TMP_PATH}/lz78y_test.o ${TMP_PATH}/utils.o
 
-${TMP_PATH}/non_iid_test.o: non_iid_test.cpp | ${TMP_PATH}
+# ${TMP_PATH}/non_iid_test.o: non_iid_test.cpp | ${TMP_PATH}
+# 	$(CXX) $(CXXFLAGS) $(INC) -c $< -o $@
+
+${TMP_PATH}/utils.o: shared/utils.c | ${TMP_PATH}
+	$(CXX) $(CXXFLAGS) $(INC) -c $< -o $@
+
+${TMP_PATH}/lz78y_test.o: non_iid/lz78y_test.c | ${TMP_PATH}
+	$(CXX) $(CXXFLAGS) $(INC) -c $< -o $@
+
+${TMP_PATH}/multi_mmc_test.o: non_iid/multi_mmc_test.c | ${TMP_PATH}
+	$(CXX) $(CXXFLAGS) $(INC) -c $< -o $@
+
+${TMP_PATH}/lag_test.o: non_iid/lag_test.c | ${TMP_PATH}
+	$(CXX) $(CXXFLAGS) $(INC) -c $< -o $@
+
+${TMP_PATH}/multi_mcw_test.o: non_iid/multi_mcw_test.c | ${TMP_PATH}
+	$(CXX) $(CXXFLAGS) $(INC) -c $< -o $@
+
+${TMP_PATH}/most_common.o: shared/most_common.c | ${TMP_PATH}
+	$(CXX) $(CXXFLAGS) $(INC) -c $< -o $@
+
+${TMP_PATH}/lrs_test.o: shared/lrs_test.c | ${TMP_PATH}
+	$(CXX) $(CXXFLAGS) $(INC) -c $< -o $@
+
+${TMP_PATH}/compression_test.o: non_iid/compression_test.c | ${TMP_PATH}
+	$(CXX) $(CXXFLAGS) $(INC) -c $< -o $@
+
+${TMP_PATH}/markov_test.o: non_iid/markov_test.c | ${TMP_PATH}
+	$(CXX) $(CXXFLAGS) $(INC) -c $< -o $@
+
+${TMP_PATH}/collision_test.o: non_iid/collision_test.c | ${TMP_PATH}
 	$(CXX) $(CXXFLAGS) $(INC) -c $< -o $@
 
 ${TMP_PATH}/c_interface.o: c_interface.c | ${TMP_PATH}

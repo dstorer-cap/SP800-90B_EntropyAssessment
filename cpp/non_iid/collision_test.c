@@ -1,4 +1,5 @@
 #pragma once
+#include "../shared/utils.h"
 
 // Computed using efficient implementation in Appendix G.1.1
 double F(double q){
@@ -13,6 +14,7 @@ double col_exp(double p){
 
 // Section 6.3.2 - Collision Estimate
 // data is assumed to be binary (e.g., bit string)
+extern "C"{
 double collision_test(uint8_t* data, long len, const int verbose, const char *label){
 	long v, i;
 	int t_v;
@@ -77,4 +79,5 @@ double collision_test(uint8_t* data, long len, const int verbose, const char *la
 	}
 
 	return entEst;
+}
 }
