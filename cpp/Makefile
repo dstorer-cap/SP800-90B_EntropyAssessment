@@ -33,7 +33,17 @@ ARCH := aarch64
 
 override CXX := aarch64-none-elf-g++
 
-CXXFLAGS := -mcpu=${CPU} -std=c++11 -ffreestanding -nostdlib -O2 -ffloat-store -fpermissive
+CXXFLAGS := \
+    -c \
+    -mcpu=${CPU} \
+    -ffreestanding \
+    -nostdlib \
+    -mstrict-align \
+    -g3 \
+    -O3 \
+    -Wall \
+    -Wno-unused-function \
+    -std=c++11
 
 CC_OPS := \
     -c \
@@ -45,12 +55,8 @@ CC_OPS := \
     -O3 \
     -Wall \
     -Wno-unused-function \
-    -I ${DEP_LVM_PATH}/out/libvmm/include \
-    -I ${DEP_LVM_PATH}/out/libvmm/dep/sddf/include \
-    -I ${MKT_RTM_PATH_FILE}/include \
 
 LIB := \
-    -L${DIVSURFSORT_PATH}/lib -ldivsufsort -ldivsufsort64 \
     # -L${MKT_RTM_PATH_FILE}/lib \
     # -lmicrokit \
     # -Tmicrokit.ld 

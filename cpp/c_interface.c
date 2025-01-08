@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -14,11 +13,22 @@
 
 bool read_file_subset(data_t* data);
 
-void notified(microkit_channel ch){
-	
+void init(void){
+
 }
 
-void init(void){
+void notified(microkit_channel ch){
+   microkit_dbg_puts("Health check long notified\n");
+   printf("Test printf\n");
+   microkit_dbg_puts("After printf test\n");
+   switch (ch) {
+		// Receive notification from the client PD
+		case 5:
+        	init_post();
+   }
+}
+
+void init_post(void){
     int verbose = 1; //verbose 0 is for JSON output, 1 is the normal mode, 2 is the NIST tool verbose mode, and 3 is for extra verbose output
     bool quietMode = false;
     double H_original, H_bitstring;
@@ -31,9 +41,13 @@ void init(void){
         verbose = 0;
     }
 
+	microkit_dbg_puts("Before read_file_subset\n");
+
     if (!read_file_subset(&data)) {
         printf("Error reading file.\n");
     }
+
+	microkit_dbg_puts("After read_file_subset\n");
 
     H_original = data.word_size;
     H_bitstring = 1.0;
@@ -43,7 +57,10 @@ void init(void){
         printf("Running Most Common Value Estimate...\n");
     }
 
+
     run_test(&data);
+		
+	microkit_dbg_puts("After run test\n");
 
     free_data(&data);
     return 0;

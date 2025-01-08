@@ -9,7 +9,6 @@
 #include "non_iid/multi_mcw_test.h"
 #include "non_iid/compression_test.h"
 #include "non_iid/markov_test.h" 
-#include <cstdio>   // For FILE
 #include <sys/time.h> // For struct timeval
 #include <errno.h>
 
@@ -25,16 +24,9 @@ extern "C" {
     int fstat(int file, struct stat *st) { errno = ENOSYS; return -1; }
     int close(int file) { errno = ENOSYS; return -1; }
     int isatty(int file) { return 0; }
-}
 
-extern "C"{
 struct _reent _impure_data = { 0 };
 struct _reent *_impure_ptr = &_impure_data;
-
-// Link against stdio_microkit instead of this
-FILE __stdout;
-FILE __stdin;
-FILE __stderr;
 
 void _exit(int status) {
     while (1); // Infinite loop to stop execution
@@ -52,10 +44,9 @@ int open(const char *pathname, int flags) {
     errno = ENOSYS; // Function not implemented
     return -1;
 }
-}
 
-extern "C"{
 void run_test(data_t* data_c){   
+    
     bool initial_entropy, all_bits;
     int verbose = 1; //verbose 0 is for JSON output, 1 is the normal mode, 2 is the NIST tool verbose mode, and 3 is for extra verbose output
     bool quietMode = false;
