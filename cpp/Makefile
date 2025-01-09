@@ -22,6 +22,8 @@ AS := ${TCH}-as
 MKT_BOARD := maaxboard
 MKT_CONFIG := debug
 
+LIBVMM_BOARD := BOARD_${MKT_BOARD}
+
 MKT_SDK_PATH := ${DEP_MKT_PATH}/out/microkit-sdk-1.4.1
 MKT_PATH_FILE := ${MKT_SDK_PATH}/bin/microkit
 MKT_RTM_PATH_FILE := ${MKT_SDK_PATH}/board/${MKT_BOARD}/${MKT_CONFIG}
@@ -55,6 +57,10 @@ CC_OPS := \
     -O3 \
     -Wall \
     -Wno-unused-function \
+    -I ${DEP_LVM_PATH}/out/libvmm/include \
+    -I ${DEP_LVM_PATH}/out/libvmm/dep/sddf/include \
+    -I ${MKT_RTM_PATH_FILE}/include \
+    -D ${LIBVMM_BOARD} \
 
 LIB := \
     # -L${MKT_RTM_PATH_FILE}/lib \
