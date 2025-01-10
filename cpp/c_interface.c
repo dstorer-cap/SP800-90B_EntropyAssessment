@@ -3,56 +3,25 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include <time.h>
+// #include <time.h>
 #include <microkit.h>
 #include <stdio_microkit.h>
 #include "non_iid_test.h"
-#include <sys/time.h> // For struct timeval
+// #include <sys/time.h> // For struct timeval
 #include <errno.h>
-#include <libvmm/virq.h>
 #include <libvmm/util/util.h>
-#include <libvmm/virtio/virtio.h>
-#include <libvmm/arch/aarch64/linux.h>
-#include <libvmm/arch/aarch64/fault.h>
 #include <sddf/serial/queue.h>
+
+uintptr_t uio_mem_2;
 
 static inline double min(double a, double b) {
     return (a < b) ? a : b;
 }
 
-// Define __errno() for compatibility with existing headers
-int *__errno() {
-    return &errno;
-}
-
-int read(int file, char *ptr, int len) { errno = ENOSYS; return -1; }
-int write(int file, char *ptr, int len) { errno = ENOSYS; return -1; }
-int lseek(int file, int offset, int whence) { errno = ENOSYS; return -1; }
-int fstat(int file, struct stat *st) { errno = ENOSYS; return -1; }
+// Stubs for functions where the linker is complaining they don't exist
 int close(int file) { errno = ENOSYS; return -1; }
-int isatty(int file) { return 0; }
 
 struct _reent *_impure_ptr;
-
-void _exit(int status) {
-    while (1); // Infinite loop to stop execution
-}
-
-int gettimeofday(struct timeval *tv, void *tz) {
-    if (tv) {
-        tv->tv_sec = 0;
-        tv->tv_usec = 0;
-    }
-    return 0; // Return success
-}
-
-int open(const char *pathname, int flags) {
-    errno = ENOSYS; // Function not implemented
-    return -1;
-}
-
-// Set to memory mapped buffer entropy is written into
-// uintptr_t entropy_buffer;
 
 bool read_file_subset(data_t* data);
 
@@ -320,7 +289,7 @@ bool read_file_subset(data_t *dp) {
 	long fileLen;
 
 	// Set length of buffer 
-	dp->len = 20000;
+	dp->len = 256;
 
 	dp->symbols = (uint8_t*)malloc(sizeof(uint8_t)*dp->len);
 	dp->rawsymbols = (uint8_t*)malloc(sizeof(uint8_t)*dp->len);
@@ -337,16 +306,15 @@ bool read_file_subset(data_t *dp) {
 		return false;
 	} 
 
-	uint8_t* entropy_buffer = (uint8_t*)malloc(dp->len);
-    memset(entropy_buffer, 0, dp->len);
+	uint8_t* entropy_buffer = (uint8_t*)uio_mem_2;;
 
-    // Seed the random number generator
-    srand((unsigned int)time(NULL));
+    // // Seed the random number generator
+    // srand((unsigned int)time(NULL));
 
-    // Fill the buffer with random data
-    for (size_t i = 0; i < dp->len; i++) {
-        entropy_buffer[i] = (uint8_t)(rand() & 0xFF); // Generate a random byte
-    }
+    // // Fill the buffer with random data
+    // for (size_t i = 0; i < dp->len; i++) {
+    //     entropy_buffer[i] = (uint8_t)(rand() & 0xFF); // Generate a random byte
+    // }
 	memcpy(dp->symbols, entropy_buffer, dp->len);
 
 	//Do we need to establish the word size?

@@ -1,27 +1,6 @@
 //Version of the tool
 #define VERSION "1.1.7"
 
-#ifndef powl
-#define powl pow
-#endif
-
-#ifndef logl
-#define logl log
-#endif
-
-#ifndef log2l
-#define log2l log2
-#endif
-
-#ifndef log1pl
-#define log1pl log1p
-#endif
-
-#ifndef expl
-#define expl exp
-#endif
-
-#pragma once
 #include <stdlib.h>
 #include <math.h>
 // #include <iostream>		// std::cout
@@ -33,7 +12,7 @@
 #include <stdio.h>
 #include <cstdlib>
 #include <vector>		// std::vector
-#include <time.h>		// time
+// #include <time.h>		// time
 #include <algorithm>	// std::sort
 #include <cmath>		// pow, log2
 #include <array>		// std::array
@@ -555,24 +534,24 @@ void xoshiro_jump(unsigned int jump_count, uint64_t *xoshiro256starstarState) {
 //This seeds using an external source
 //We use /dev/urandom here. 
 //We could alternately use the RdRand (or some other OS or HW source of pseudo-random numbers)
-void seed(uint64_t *xoshiro256starstarState){
-	FILE *infp;
+// void seed(uint64_t *xoshiro256starstarState){
+// 	FILE *infp;
 
-	if((infp=fopen("/dev/urandom", "rb"))==NULL) {
-		perror("Can't open random source. Reverting to a deterministic seed.");
-		exit(-1);
-	} 
+// 	if((infp=fopen("/dev/urandom", "rb"))==NULL) {
+// 		perror("Can't open random source. Reverting to a deterministic seed.");
+// 		exit(-1);
+// 	} 
 
-	if(fread(xoshiro256starstarState, sizeof(uint64_t), 4, infp)!=4) {
-		perror("Can't read random seed");
-		exit(-1);
-	}
+// 	if(fread(xoshiro256starstarState, sizeof(uint64_t), 4, infp)!=4) {
+// 		perror("Can't read random seed");
+// 		exit(-1);
+// 	}
 
-	if(fclose(infp)!=0) {
-		perror("Couldn't close random source");
-		exit(-1);
-	}
-}
+// 	if(fclose(infp)!=0) {
+// 		perror("Couldn't close random source");
+// 		exit(-1);
+// 	}
+// }
 
 /*Return an integer in the range [0, high], without modular bias*/
 /*This is a slight modification of Lemire's approach (as we want [0,s] rather than [0,s)*/

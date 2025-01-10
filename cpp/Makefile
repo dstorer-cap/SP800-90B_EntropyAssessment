@@ -27,7 +27,7 @@ LIBVMM_BOARD := BOARD_${MKT_BOARD}
 MKT_SDK_PATH := ${DEP_MKT_PATH}/out/microkit-sdk-1.4.1
 MKT_PATH_FILE := ${MKT_SDK_PATH}/bin/microkit
 MKT_RTM_PATH_FILE := ${MKT_SDK_PATH}/board/${MKT_BOARD}/${MKT_CONFIG}
-PICOLIBC_PATH = ${DEP_PLC_PATH}/picolibc_build/picolibc/aarch64-linux-gnu
+PICOLIBC_PATH = ${DEP_PLC_PATH}/picolibc_build
 
 DIVSURFSORT_PATH := /home/dstorer/svn_apricot/apricot/development/wip/daniel/single-linux-guest-nitrokey/dep/SP800-90B_EntropyAssessment/libdivsufsort/build
 

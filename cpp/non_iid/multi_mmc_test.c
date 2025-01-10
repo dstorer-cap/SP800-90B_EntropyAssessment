@@ -1,4 +1,3 @@
-#pragma once
 #include "../shared/utils.h"
 
 #define D_MMC 16
@@ -145,105 +144,105 @@ static double binaryMultiMMCPredictionEstimate(const uint8_t *S, long L, const i
  *    we should have), this can't happen in practice because we add strings from shortest to longest.
  */
 extern "C"{
-double multi_mmc_test(uint8_t *data, long len, int alph_size, const int verbose, const char *label){
-	int winner, cur_winner;
-	int entries[D_MMC];
-	long i, d, N, C, run_len, max_run_len;
-	long scoreboard[D_MMC] = {0};
-	array<uint8_t, D_MMC> x;
+   double multi_mmc_test(uint8_t *data, long len, int alph_size, const int verbose, const char *label){
+      int winner, cur_winner;
+      int entries[D_MMC];
+      long i, d, N, C, run_len, max_run_len;
+      long scoreboard[D_MMC] = {0};
+      array<uint8_t, D_MMC> x;
 
-	if(alph_size == 2) return binaryMultiMMCPredictionEstimate(data, len, verbose, label);
+      if(alph_size == 2) return binaryMultiMMCPredictionEstimate(data, len, verbose, label);
 
-	array<map<array<uint8_t, D_MMC>, PostfixDictionary>, D_MMC> M;
+      array<map<array<uint8_t, D_MMC>, PostfixDictionary>, D_MMC> M;
 
-	if(len < 3){	
-		printf("\t*** Warning: not enough samples to run multiMMC test (need more than %d) ***\n", 3);
-		return -1.0;
-	}
+      if(len < 3){	
+         printf("\t*** Warning: not enough samples to run multiMMC test (need more than %d) ***\n", 3);
+         return -1.0;
+      }
 
-	//Step 1
-	N = len-2;
+      //Step 1
+      N = len-2;
 
-	//Step 3
-	//scoreboard is initilized above.
-	winner = 0;
-	
-	C = 0;
-	run_len = 0;
-	max_run_len = 0;
+      //Step 3
+      //scoreboard is initilized above.
+      winner = 0;
+      
+      C = 0;
+      run_len = 0;
+      max_run_len = 0;
 
-	// initialize MMC counts
-	// this performs step 4.a and 4.b for the () case
-	memset(x.data(), 0, D_MMC);
-	for(d = 0; d < D_MMC; d++){
-		if(d < N){
-			memcpy(x.data(), data, d+1);
-			(M[d][x]).incrementPostfix(data[d+1], true);
-			entries[d] = 1;
-		}
-	}
+      // initialize MMC counts
+      // this performs step 4.a and 4.b for the () case
+      memset(x.data(), 0, D_MMC);
+      for(d = 0; d < D_MMC; d++){
+         if(d < N){
+            memcpy(x.data(), data, d+1);
+            (M[d][x]).incrementPostfix(data[d+1], true);
+            entries[d] = 1;
+         }
+      }
 
-	// perform predictions
-	//i is the index of the new symbol to be predicted
-	for (i = 2; i < len; i++){
-		bool found_x = false;
-		cur_winner = winner;
-		memset(x.data(), 0, D_MMC);
+      // perform predictions
+      //i is the index of the new symbol to be predicted
+      for (i = 2; i < len; i++){
+         bool found_x = false;
+         cur_winner = winner;
+         memset(x.data(), 0, D_MMC);
 
-		for(d = 0; (d < D_MMC) && (i-2 >= d); d++) {
-			map<array<uint8_t, D_MMC>, PostfixDictionary>::iterator curp;
-			// check if x has been previously seen as a prefix. If the prefix x has not occurred,
-			// then do not make a prediction for current d and larger d's
-			// as well, since it will not occur for them either. In other words,
-			// prediction is NULL, so do not update the scoreboard.
-			// Note that found_x is uninitialized on the first round, but for that round d==0.
-			if((d == 0) || found_x) {
-				//Get the prediction
-				//predict S[i] by using the prior d+1 symbols and the current state
-				//We need the d-tuple prior to S[i], that is (S[i-d-1], ..., S[i-1])
+         for(d = 0; (d < D_MMC) && (i-2 >= d); d++) {
+            map<array<uint8_t, D_MMC>, PostfixDictionary>::iterator curp;
+            // check if x has been previously seen as a prefix. If the prefix x has not occurred,
+            // then do not make a prediction for current d and larger d's
+            // as well, since it will not occur for them either. In other words,
+            // prediction is NULL, so do not update the scoreboard.
+            // Note that found_x is uninitialized on the first round, but for that round d==0.
+            if((d == 0) || found_x) {
+               //Get the prediction
+               //predict S[i] by using the prior d+1 symbols and the current state
+               //We need the d-tuple prior to S[i], that is (S[i-d-1], ..., S[i-1])
 
-				//This populates the curp for the later increment
+               //This populates the curp for the later increment
 
-				memcpy(x.data(), data+i-d-1, d+1);
-				curp = M[d].find(x);
-				if(curp == M[d].end()) found_x = false;
-				else found_x = true;
-			}
+               memcpy(x.data(), data+i-d-1, d+1);
+               curp = M[d].find(x);
+               if(curp == M[d].end()) found_x = false;
+               else found_x = true;
+            }
 
-			if(found_x){
-				long predictCount;
-				// x has occurred, find max (x,y) pair across all y's
-				// Check to see if the current prediction is correct.
-				if((curp->second).predict(predictCount) == data[i]){
-					// prediction is correct, update scoreboard and winner
-					if(++scoreboard[d] >= scoreboard[winner]) winner = d;
-					if(d == cur_winner){
-						C++;
-						if(++run_len > max_run_len) max_run_len = run_len;
-					}
-				}
-				else if(d == cur_winner) {
-					//This prediction was wrong;
-					//If the best predictor was previously d, zero the run length counter
-					run_len = 0;
-				}
+            if(found_x){
+               long predictCount;
+               // x has occurred, find max (x,y) pair across all y's
+               // Check to see if the current prediction is correct.
+               if((curp->second).predict(predictCount) == data[i]){
+                  // prediction is correct, update scoreboard and winner
+                  if(++scoreboard[d] >= scoreboard[winner]) winner = d;
+                  if(d == cur_winner){
+                     C++;
+                     if(++run_len > max_run_len) max_run_len = run_len;
+                  }
+               }
+               else if(d == cur_winner) {
+                  //This prediction was wrong;
+                  //If the best predictor was previously d, zero the run length counter
+                  run_len = 0;
+               }
 
-				//Now check to see in (x,y) needs to be counted or (x,y) added to the dictionary
-				if((curp->second).incrementPostfix(data[i], entries[d] < MAX_ENTRIES)) {
-					//We had to make a new entry. Count this.
-					entries[d]++;
-				}
-			} else if(entries[d] < MAX_ENTRIES) {
-				//We didn't find the x prefix, so (x,y) surely can't have occurred.
-				//We're allowed to make a new entry. Do so.
-				//curp isn't populated here, because it wasn't found
-				memcpy(x.data(), data+i-d-1, d+1);
-				(M[d][x]).incrementPostfix(data[i], true);
-				entries[d]++;
-			}
-		}
-	}
+               //Now check to see in (x,y) needs to be counted or (x,y) added to the dictionary
+               if((curp->second).incrementPostfix(data[i], entries[d] < MAX_ENTRIES)) {
+                  //We had to make a new entry. Count this.
+                  entries[d]++;
+               }
+            } else if(entries[d] < MAX_ENTRIES) {
+               //We didn't find the x prefix, so (x,y) surely can't have occurred.
+               //We're allowed to make a new entry. Do so.
+               //curp isn't populated here, because it wasn't found
+               memcpy(x.data(), data+i-d-1, d+1);
+               (M[d][x]).incrementPostfix(data[i], true);
+               entries[d]++;
+            }
+         }
+      }
 
-	return(predictionEstimate(C, N, max_run_len, alph_size, "MultiMMC", verbose, label));
-}
+      return(predictionEstimate(C, N, max_run_len, alph_size, "MultiMMC", verbose, label));
+   }
 }

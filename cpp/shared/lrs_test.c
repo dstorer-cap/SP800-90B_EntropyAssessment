@@ -1,5 +1,3 @@
-#pragma once
-
 #include "utils.h"
 #include <climits>
 #include <divsufsort.h>
@@ -559,13 +557,13 @@ void SAalgs64(const uint8_t text[], long int n, int k, double &t_tuple_res, doub
 }
 
 extern "C"{
-void SAalgs(const uint8_t text[], long int n, int k, double &t_tuple_res, double &lrs_res, const int verbose, const char *label) {
-	if(n<SAINDEX_MAX) {
-		SAalgs32(text, n, k, t_tuple_res, lrs_res, verbose, label);
-	} else {
-		SAalgs64(text, n, k, t_tuple_res, lrs_res, verbose, label);
+	void SAalgs(const uint8_t text[], long int n, int k, double &t_tuple_res, double &lrs_res, const int verbose, const char *label) {
+		if(n<SAINDEX_MAX) {
+			SAalgs32(text, n, k, t_tuple_res, lrs_res, verbose, label);
+		} else {
+			SAalgs64(text, n, k, t_tuple_res, lrs_res, verbose, label);
+		}
 	}
-}
 }
 
 long int len_LRS32(const uint8_t text[], const int sample_size){

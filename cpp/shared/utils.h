@@ -33,7 +33,7 @@
 #include <stdio.h>
 #include <cstdlib>
 #include <vector>		// std::vector
-#include <time.h>		// time
+// #include <time.h>		// time
 #include <algorithm>	// std::sort
 #include <cmath>		// pow, log2
 #include <array>		// std::array
@@ -42,7 +42,6 @@
 #include <mutex>		// std::mutex
 #include <assert.h>
 #include <cfloat>
-
 
 #define SWAP(x, y) do { int s = x; x = y; y = s; } while(0)
 #define INOPENINTERVAL(x, a, b) (((a)>(b))?(((x)>(b))&&((x)<(a))):(((x)>(a))&&((x)<(b))))
@@ -83,8 +82,6 @@ struct data_t{
 	long len; 		// number of words in data
 	long blen; 		// number of bits in data
 };
-
-
 
 using namespace std;
 

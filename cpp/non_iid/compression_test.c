@@ -1,4 +1,3 @@
-#pragma once
 #include "../shared/utils.h"
 
 inline void kahan_add(double &sum, double &comp, double in){
@@ -91,157 +90,157 @@ double com_exp(double p, unsigned int alph_size, int d, long num_blocks){
 // Section 6.3.4 - Compression Estimate
 // data is assumed to be binary (e.g., bit string)
 extern "C"{
-double compression_test(uint8_t* data, long len, const int verbose, const char *label){
-	int j, d, b = 6;
-	long i, num_blocks, v;
-	unsigned int block, alph_size = 1 << b; 
-	unsigned int dict[alph_size];
-	double X=0.0, X_comp=0.0;
-	double sigma=0.0, sigma_comp=0.0;
-	double p, entEst;
-	double ldomain, hdomain, lbound, hbound, lvalue, hvalue, pVal, lastP;
+	double compression_test(uint8_t* data, long len, const int verbose, const char *label){
+		int j, d, b = 6;
+		long i, num_blocks, v;
+		unsigned int block, alph_size = 1 << b; 
+		unsigned int dict[alph_size];
+		double X=0.0, X_comp=0.0;
+		double sigma=0.0, sigma_comp=0.0;
+		double p, entEst;
+		double ldomain, hdomain, lbound, hbound, lvalue, hvalue, pVal, lastP;
 
-	d = 1000;
-	num_blocks = len/b;
+		d = 1000;
+		num_blocks = len/b;
 
-	if(num_blocks <= d){
-		printf("\t*** Warning: not enough samples to run compression test (need more than %d) ***\n", d);
-		return -1.0;
-	}
+		if(num_blocks <= d){
+			printf("\t*** Warning: not enough samples to run compression test (need more than %d) ***\n", d);
+			return -1.0;
+		}
 
-	// create dictionary
-	for(i = 0; i < alph_size; i++) dict[i] = 0;
-	for(i = 0; i < d; i++){
-		block = 0;
-		for(j = 0; j < b; j++) block |= (data[i*b + j] & 0x1) << (b-j-1);
-		dict[block] = i+1;
-	}
+		// create dictionary
+		for(i = 0; i < alph_size; i++) dict[i] = 0;
+		for(i = 0; i < d; i++){
+			block = 0;
+			for(j = 0; j < b; j++) block |= (data[i*b + j] & 0x1) << (b-j-1);
+			dict[block] = i+1;
+		}
 
-	// test data against dictionary
-	v = num_blocks - d;
-	for(i = d; i < num_blocks; i++){
-		block = 0;
-		for(j = 0; j < b; j++) block |= (data[i*b + j] & 0x1) << (b-j-1);
-		kahan_add(X, X_comp, log2(i+1-dict[block]));
-		kahan_add(sigma, sigma_comp, log2(i+1-dict[block])*log2(i+1-dict[block]));
-		dict[block] = i+1;
-	}
+		// test data against dictionary
+		v = num_blocks - d;
+		for(i = d; i < num_blocks; i++){
+			block = 0;
+			for(j = 0; j < b; j++) block |= (data[i*b + j] & 0x1) << (b-j-1);
+			kahan_add(X, X_comp, log2(i+1-dict[block]));
+			kahan_add(sigma, sigma_comp, log2(i+1-dict[block])*log2(i+1-dict[block]));
+			dict[block] = i+1;
+		}
 
-	// compute mean and stdev
-	X /= v;
-	sigma = 0.5907 * sqrt(sigma/(v-1.0) - X*X);
+		// compute mean and stdev
+		X /= v;
+		sigma = 0.5907 * sqrt(sigma/(v-1.0) - X*X);
 
-	if(verbose == 2) {
-		printf("%s Compression Estimate: X-bar = %.17g, ", label, X);
-		printf("sigma-hat = %.17g, ", sigma);
-	} else if(verbose == 3) {
-		printf("%s Compression Estimate: X-bar = %.17g\n", label, X);
-		printf("%s Compression Estimate: sigma-hat = %.17g\n", label, sigma);
-	}
+		if(verbose == 2) {
+			printf("%s Compression Estimate: X-bar = %.17g, ", label, X);
+			printf("sigma-hat = %.17g, ", sigma);
+		} else if(verbose == 3) {
+			printf("%s Compression Estimate: X-bar = %.17g\n", label, X);
+			printf("%s Compression Estimate: sigma-hat = %.17g\n", label, sigma);
+		}
 
-        // binary search for p
-	X -= ZALPHA * sigma/sqrt(v);
+			// binary search for p
+		X -= ZALPHA * sigma/sqrt(v);
 
-	if(verbose == 3) printf("%s Compression Estimate: X-bar' = %.17g\n", label, X);
+		if(verbose == 3) printf("%s Compression Estimate: X-bar' = %.17g\n", label, X);
 
-	if(com_exp(1.0/(double)alph_size, alph_size, d, num_blocks) > X) {
-		ldomain = 1.0 / (double)alph_size;
-		hdomain = 1.0;
+		if(com_exp(1.0/(double)alph_size, alph_size, d, num_blocks) > X) {
+			ldomain = 1.0 / (double)alph_size;
+			hdomain = 1.0;
 
-		lbound = ldomain;
-		hbound = hdomain;
+			lbound = ldomain;
+			hbound = hdomain;
 
-		lvalue = DBL_INFINITY;
-		hvalue = -DBL_INFINITY;
+			lvalue = DBL_INFINITY;
+			hvalue = -DBL_INFINITY;
 
-		//Note that the bounds are in [0,1], so overflows aren't an issue
-		//But underflows are.
-		p = (lbound + hbound) / 2.0;
-		pVal = com_exp(p, alph_size, d, num_blocks);
-
-		//We don't need the initial pVal invariant, as our initial bounds are infinite.
-		//We don't need the initial bounds, as they are set to the domain bounds
-		for(j=0; j<ITERMAX; j++) {
-			//Have we reached "equality"?
-			if(relEpsilonEqual(pVal, X, ABSEPSILON, RELEPSILON, 4)) break;
-
-			//Now update based on the found pVal
-			if(X < pVal) {
-				lbound = p;
-				lvalue = pVal;
-			} else {
-				hbound = p;
-				hvalue = pVal;
-			}
-
-			//We now verify that ldomain <= lbound < p < hbound <= hdomain
-			//and that target in [ lvalue, hvalue ]
-			if(lbound >= hbound) {
-				p = fmin(fmax(lbound, hbound),hdomain);
-				break;
-			}
-
-			//invariant. If this isn't true, then we can't evaluate here.
-			if(!(INCLOSEDINTERVAL(lbound, ldomain, hdomain) && INCLOSEDINTERVAL(hbound,  ldomain, hdomain))) {
-				//This is a search failure. We need to return "full entropy"  (as directed in step #8).
-				p = ldomain;
-				break;
-			}
-
-			//invariant. If this isn't true, then seeking the value within this interval doesn't make sense.
-			if(!INCLOSEDINTERVAL(X, lvalue, hvalue)) {
-				//This is a search failure. We need to return "full entropy"  (as directed in step #8).
-				p = ldomain;
-				break;
-			}
-
-			//Update p
-			lastP = p;
+			//Note that the bounds are in [0,1], so overflows aren't an issue
+			//But underflows are.
 			p = (lbound + hbound) / 2.0;
-
-			//invariant. If this isn't true, then further calculation isn't really meaningful.
-			if(!INOPENINTERVAL(p,  lbound, hbound)) {
-				p = hbound;
-				break;
-			}
-
-	#pragma GCC diagnostic push
-	#pragma GCC diagnostic ignored "-Wfloat-equal"
-			//Look for a cycle
-			if(lastP == p) {
-				p = hbound;
-				break;
-			}
-	#pragma GCC diagnostic pop
-
 			pVal = com_exp(p, alph_size, d, num_blocks);
 
-			//invariant: If this isn't true, then this isn't loosely monotonic
-			if(!INCLOSEDINTERVAL(pVal, lvalue, hvalue)) {
-				p = hbound;
-				break;
-			}
-		}//for loop
-	} else {
-		p = -1.0;
-	}
+			//We don't need the initial pVal invariant, as our initial bounds are infinite.
+			//We don't need the initial bounds, as they are set to the domain bounds
+			for(j=0; j<ITERMAX; j++) {
+				//Have we reached "equality"?
+				if(relEpsilonEqual(pVal, X, ABSEPSILON, RELEPSILON, 4)) break;
 
-	if(p > 1.0 / (double)alph_size) {
-        	entEst = -log2(p)/b;
-	
-		if(verbose == 3) printf("%s Compression Estimate: Found p.\n", label);
-	} else {
-		p = 1.0 / (double)alph_size;
-		entEst = 1.0;
-		if(verbose == 3) printf("%s Compression Estimate: Could Not Find p. Proceeding with the lower bound for p.\n", label);
-	}
+				//Now update based on the found pVal
+				if(X < pVal) {
+					lbound = p;
+					lvalue = pVal;
+				} else {
+					hbound = p;
+					hvalue = pVal;
+				}
 
-	if(verbose == 2) printf("p = %.17g\n", p);
-	else if(verbose == 3) {
-		printf("%s Compression Estimate: p = %.17g\n", label, p);
-		printf("%s Compression Estimate: min entropy = %.17g\n", label, entEst);
-	}
+				//We now verify that ldomain <= lbound < p < hbound <= hdomain
+				//and that target in [ lvalue, hvalue ]
+				if(lbound >= hbound) {
+					p = fmin(fmax(lbound, hbound),hdomain);
+					break;
+				}
 
-        return entEst;
-}
+				//invariant. If this isn't true, then we can't evaluate here.
+				if(!(INCLOSEDINTERVAL(lbound, ldomain, hdomain) && INCLOSEDINTERVAL(hbound,  ldomain, hdomain))) {
+					//This is a search failure. We need to return "full entropy"  (as directed in step #8).
+					p = ldomain;
+					break;
+				}
+
+				//invariant. If this isn't true, then seeking the value within this interval doesn't make sense.
+				if(!INCLOSEDINTERVAL(X, lvalue, hvalue)) {
+					//This is a search failure. We need to return "full entropy"  (as directed in step #8).
+					p = ldomain;
+					break;
+				}
+
+				//Update p
+				lastP = p;
+				p = (lbound + hbound) / 2.0;
+
+				//invariant. If this isn't true, then further calculation isn't really meaningful.
+				if(!INOPENINTERVAL(p,  lbound, hbound)) {
+					p = hbound;
+					break;
+				}
+
+		#pragma GCC diagnostic push
+		#pragma GCC diagnostic ignored "-Wfloat-equal"
+				//Look for a cycle
+				if(lastP == p) {
+					p = hbound;
+					break;
+				}
+		#pragma GCC diagnostic pop
+
+				pVal = com_exp(p, alph_size, d, num_blocks);
+
+				//invariant: If this isn't true, then this isn't loosely monotonic
+				if(!INCLOSEDINTERVAL(pVal, lvalue, hvalue)) {
+					p = hbound;
+					break;
+				}
+			}//for loop
+		} else {
+			p = -1.0;
+		}
+
+		if(p > 1.0 / (double)alph_size) {
+				entEst = -log2(p)/b;
+		
+			if(verbose == 3) printf("%s Compression Estimate: Found p.\n", label);
+		} else {
+			p = 1.0 / (double)alph_size;
+			entEst = 1.0;
+			if(verbose == 3) printf("%s Compression Estimate: Could Not Find p. Proceeding with the lower bound for p.\n", label);
+		}
+
+		if(verbose == 2) printf("p = %.17g\n", p);
+		else if(verbose == 3) {
+			printf("%s Compression Estimate: p = %.17g\n", label, p);
+			printf("%s Compression Estimate: min entropy = %.17g\n", label, entEst);
+		}
+
+			return entEst;
+	}
 }
